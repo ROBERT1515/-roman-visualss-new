@@ -52,6 +52,188 @@ document.querySelectorAll(".project-media video").forEach((video) => {
   });
 });
 
+const heroProjects = [
+  {
+    id: "hyper",
+    title: "Hyper",
+    category: "AI Product Motion",
+    description: "A punchy motion piece turning the idea of an AI super memory into a premium product story.",
+    video: "assets/videos/hyper.mp4",
+    poster: "assets/posters/hyper-poster.jpg",
+  },
+  {
+    id: "shuttle",
+    title: "Shuttle",
+    category: "Product Explainer",
+    description: "A clean product video designed to explain the platform with clarity, rhythm and premium execution.",
+    video: "assets/videos/shuttle.mp4",
+    poster: "assets/posters/shuttle-poster.jpg",
+  },
+  {
+    id: "hevn",
+    title: "HEVN",
+    category: "Fintech Launch Video",
+    description: "A cinematic UI animation for global payments, built to make complex financial infrastructure feel instant.",
+    video: "assets/videos/hevn.mp4",
+    poster: "assets/posters/hevn-poster.jpg",
+  },
+];
+
+const heroVideo = document.querySelector("#hero-reel-video");
+const heroTitle = document.querySelector("#hero-reel-title");
+const heroCategory = document.querySelector("#hero-reel-category");
+const heroDescription = document.querySelector("#hero-reel-description");
+const heroDots = document.querySelectorAll("[data-hero-index]");
+const heroPlayButton = document.querySelector(".hero-play-button");
+let currentHeroIndex = 0;
+
+function playHeroVideo() {
+  if (!heroVideo || prefersReducedMotion) return;
+  heroVideo.play().catch(() => {});
+}
+
+function setHeroProject(index) {
+  if (!heroVideo) return;
+
+  currentHeroIndex = (index + heroProjects.length) % heroProjects.length;
+  const project = heroProjects[currentHeroIndex];
+
+  heroVideo.src = project.video;
+  heroVideo.poster = project.poster;
+  heroVideo.setAttribute("aria-label", `${project.title} portfolio video`);
+  heroVideo.load();
+
+  if (heroTitle) heroTitle.textContent = project.title;
+  if (heroCategory) heroCategory.textContent = project.category;
+  if (heroDescription) heroDescription.textContent = project.description;
+
+  heroDots.forEach((dot, dotIndex) => {
+    const isActive = dotIndex === currentHeroIndex;
+    dot.classList.toggle("is-active", isActive);
+    if (isActive) {
+      dot.setAttribute("aria-current", "true");
+    } else {
+      dot.removeAttribute("aria-current");
+    }
+  });
+
+  playHeroVideo();
+}
+
+heroDots.forEach((dot) => {
+  dot.addEventListener("click", () => {
+    setHeroProject(Number(dot.dataset.heroIndex));
+  });
+});
+
+heroVideo?.addEventListener("ended", () => {
+  if (!prefersReducedMotion) setHeroProject(currentHeroIndex + 1);
+});
+
+heroPlayButton?.addEventListener("click", () => {
+  if (!heroVideo) return;
+
+  if (heroVideo.paused) {
+    heroVideo.play().catch(() => {});
+    heroPlayButton.setAttribute("aria-label", "Pause hero reel");
+  } else {
+    heroVideo.pause();
+    heroPlayButton.setAttribute("aria-label", "Play hero reel");
+  }
+});
+
+if (prefersReducedMotion) {
+  heroVideo?.pause();
+} else {
+  playHeroVideo();
+}
+
+const caseCarousel = document.querySelector(".case-carousel");
+const caseViewport = document.querySelector(".case-carousel-viewport");
+const caseTrack = document.querySelector(".case-carousel-track");
+const caseCards = document.querySelectorAll(".case-carousel .case-card");
+const caseDots = document.querySelectorAll("[data-case-index]");
+const casePrevButton = document.querySelector("[data-case-prev]");
+const caseNextButton = document.querySelector("[data-case-next]");
+let currentCaseIndex = 0;
+let caseTimer = null;
+
+function setCaseIndex(index, shouldScroll = false) {
+  if (!caseTrack || !caseCards.length) return;
+
+  currentCaseIndex = (index + caseCards.length) % caseCards.length;
+  caseTrack.style.transform = `translateX(-${currentCaseIndex * 100}%)`;
+
+  caseCards.forEach((card, cardIndex) => {
+    card.toggleAttribute("aria-current", cardIndex === currentCaseIndex);
+  });
+
+  caseDots.forEach((dot, dotIndex) => {
+    const isActive = dotIndex === currentCaseIndex;
+    dot.classList.toggle("is-active", isActive);
+    if (isActive) {
+      dot.setAttribute("aria-current", "true");
+    } else {
+      dot.removeAttribute("aria-current");
+    }
+  });
+
+  if (shouldScroll && window.matchMedia("(max-width: 980px)").matches && caseViewport) {
+    caseCards[currentCaseIndex].scrollIntoView({
+      behavior: prefersReducedMotion ? "auto" : "smooth",
+      block: "nearest",
+      inline: "start",
+    });
+  }
+}
+
+function startCaseTimer() {
+  if (prefersReducedMotion || !caseCards.length) return;
+  stopCaseTimer();
+  caseTimer = window.setInterval(() => setCaseIndex(currentCaseIndex + 1), 7000);
+}
+
+function stopCaseTimer() {
+  if (caseTimer) window.clearInterval(caseTimer);
+  caseTimer = null;
+}
+
+casePrevButton?.addEventListener("click", () => {
+  setCaseIndex(currentCaseIndex - 1, true);
+  startCaseTimer();
+});
+
+caseNextButton?.addEventListener("click", () => {
+  setCaseIndex(currentCaseIndex + 1, true);
+  startCaseTimer();
+});
+
+caseDots.forEach((dot) => {
+  dot.addEventListener("click", () => {
+    setCaseIndex(Number(dot.dataset.caseIndex), true);
+    startCaseTimer();
+  });
+});
+
+caseCarousel?.addEventListener("mouseenter", stopCaseTimer);
+caseCarousel?.addEventListener("mouseleave", startCaseTimer);
+
+document.querySelectorAll("[data-case-target]").forEach((link) => {
+  link.addEventListener("click", () => {
+    setCaseIndex(Number(link.dataset.caseTarget));
+  });
+});
+
+document.querySelectorAll("[data-hero-project]").forEach((link) => {
+  link.addEventListener("click", () => {
+    const projectIndex = heroProjects.findIndex((project) => project.id === link.dataset.heroProject);
+    if (projectIndex >= 0) setHeroProject(projectIndex);
+  });
+});
+
+setCaseIndex(0);
+startCaseTimer();
+
 const form = document.querySelector(".contact-form");
 
 const validators = {

@@ -57,17 +57,32 @@
           </div>
         </div>
 
-        <aside class="showreel-card card reveal delay-1" aria-label="Showreel preview">
+        <aside class="showreel-card hero-reel card reveal delay-1" aria-label="Portfolio video reel">
           <div class="hero-video-stack">
             <video
+              id="hero-reel-video"
               src="assets/videos/hyper.mp4"
               poster="assets/posters/hyper-poster.jpg"
               preload="metadata"
               muted
               playsinline
-              loop
               autoplay
+              aria-label="Hyper portfolio video"
             ></video>
+            <div class="hero-video-overlay" aria-hidden="true"></div>
+            <button class="hero-play-button" type="button" aria-label="Play or pause hero reel">
+              <span aria-hidden="true"></span>
+            </button>
+            <div class="hero-project-info">
+              <p class="eyebrow" id="hero-reel-category">AI Product Motion</p>
+              <h2 id="hero-reel-title">Hyper</h2>
+              <p id="hero-reel-description">A punchy motion piece turning the idea of an AI super memory into a premium product story.</p>
+            </div>
+          </div>
+          <div class="hero-reel-controls" aria-label="Choose reel video">
+            <button class="reel-dot is-active" type="button" aria-label="Show Hyper video" aria-current="true" data-hero-index="0"></button>
+            <button class="reel-dot" type="button" aria-label="Show Shuttle video" data-hero-index="1"></button>
+            <button class="reel-dot" type="button" aria-label="Show HEVN video" data-hero-index="2"></button>
           </div>
           <div class="stats">
             <p><strong>03</strong><span>real motion projects</span></p>
@@ -88,17 +103,17 @@
         <div class="marquee" aria-hidden="true">
           <div class="marquee-track logo-track">
             <span><img src="assets/logos/hyper.svg" alt="" /> Hyper</span>
-            <span><img src="assets/logos/shuttle.png" alt="" /> Shuttle</span>
+            <span><img src="assets/logos/shuttle-wide.png" alt="" /> Shuttle</span>
             <span><img src="assets/logos/hevn.svg" alt="" /> HEVN</span>
-            <span>Product UI</span>
-            <span>SaaS Product</span>
-            <span>Launch Video</span>
             <span><img src="assets/logos/hyper.svg" alt="" /> Hyper</span>
-            <span><img src="assets/logos/shuttle.png" alt="" /> Shuttle</span>
+            <span><img src="assets/logos/shuttle-wide.png" alt="" /> Shuttle</span>
             <span><img src="assets/logos/hevn.svg" alt="" /> HEVN</span>
-            <span>Product UI</span>
-            <span>SaaS Product</span>
-            <span>Launch Video</span>
+            <span><img src="assets/logos/hyper.svg" alt="" /> Hyper</span>
+            <span><img src="assets/logos/shuttle-wide.png" alt="" /> Shuttle</span>
+            <span><img src="assets/logos/hevn.svg" alt="" /> HEVN</span>
+            <span><img src="assets/logos/hyper.svg" alt="" /> Hyper</span>
+            <span><img src="assets/logos/shuttle-wide.png" alt="" /> Shuttle</span>
+            <span><img src="assets/logos/hevn.svg" alt="" /> HEVN</span>
           </div>
         </div>
       </section>
@@ -125,10 +140,10 @@
             </div>
             <div class="project-meta">
               <img class="project-logo" src="assets/logos/hyper.svg" alt="Hyper logo" />
-              <p class="eyebrow">Product motion design</p>
+              <p class="eyebrow">AI Product Motion</p>
               <h3>Hyper</h3>
-              <p>A clean product-focused motion piece created to make the software feel modern, fast and premium.</p>
-              <a class="mini-button" href="#contact">Start similar project</a>
+              <p>A punchy motion piece turning the idea of an AI super memory into a premium product story.</p>
+              <a class="mini-button" href="#case-studies" data-case-target="0">View case study</a>
             </div>
           </article>
 
@@ -146,10 +161,10 @@
             </div>
             <div class="project-meta">
               <img class="project-logo" src="assets/logos/shuttle-wide.png" alt="Shuttle logo" />
-              <p class="eyebrow">SaaS / product video</p>
+              <p class="eyebrow">Product Explainer</p>
               <h3>Shuttle</h3>
-              <p>A polished explainer-style motion design built around clarity, interface rhythm and product storytelling.</p>
-              <a class="mini-button" href="#contact">Start similar project</a>
+              <p>A clean product video designed to explain the platform with clarity, rhythm and premium execution.</p>
+              <a class="mini-button" href="#case-studies" data-case-target="1">View case study</a>
             </div>
           </article>
 
@@ -167,10 +182,10 @@
             </div>
             <div class="project-meta">
               <img class="project-logo" src="assets/logos/hevn.svg" alt="HEVN logo" />
-              <p class="eyebrow">Brand motion / launch asset</p>
+              <p class="eyebrow">Fintech Launch Video</p>
               <h3>HEVN</h3>
-              <p>A premium motion asset created to give the brand a sharper, more cinematic and launch-ready presence.</p>
-              <a class="mini-button" href="#contact">Start similar project</a>
+              <p>A cinematic UI animation for global payments, built to make complex financial infrastructure feel instant.</p>
+              <a class="mini-button" href="#case-studies" data-case-target="2">View case study</a>
             </div>
           </article>
         </div>
@@ -178,47 +193,89 @@
 
       <section id="testimonials" class="section-shell section-block" aria-labelledby="testimonial-title">
         <div class="section-heading reveal">
-          <p class="kicker">Testimonials</p>
+          <p class="kicker">TESTIMONIALS</p>
           <h2 id="testimonial-title">Founders and teams I helped look premium</h2>
           <p>Real words from the people behind the products.</p>
         </div>
 
-        <div class="testimonial-grid founder-testimonial-grid">
-          <article class="testimonial-card founder-testimonial card reveal">
-            <div class="testimonial-topline">
-              <img class="testimonial-avatar" src="assets/founders/nikita-hevn.jpeg" alt="Nikita Briuzgin profile photo" />
-              <img class="testimonial-logo" src="assets/logos/hevn.svg" alt="HEVN logo" />
-            </div>
-            <p>“Ronald turned our highly complex financial infrastructure into a seamless, premium visual experience. He perfectly captured exactly how smooth global payments should feel. Incredible work.”</p>
-            <div class="testimonial-author">
-              <strong>Nikita Briuzgin</strong>
-              <span>Co-Founder &amp; CPO at HEVN (YC P26)</span>
-            </div>
-          </article>
+        <div class="testimonial-marquee founder-testimonial-grid reveal" aria-label="Founder testimonials">
+          <div class="testimonial-track">
+            <div class="testimonial-set">
+              <article class="testimonial-card founder-testimonial card">
+                <div class="testimonial-topline">
+                  <img class="testimonial-avatar" src="assets/founders/nikita-hevn.jpeg" alt="Nikita Briuzgin profile photo" />
+                  <img class="testimonial-logo" src="assets/logos/hevn.svg" alt="HEVN logo" />
+                </div>
+                <p>“Ronald turned our highly complex financial infrastructure into a seamless, premium visual experience. He perfectly captured exactly how smooth global payments should feel. Incredible work.”</p>
+                <div class="testimonial-author">
+                  <strong>Nikita Briuzgin</strong>
+                  <span>Co-Founder &amp; CPO at HEVN (YC P26)</span>
+                </div>
+              </article>
 
-          <article class="testimonial-card founder-testimonial card reveal">
-            <div class="testimonial-topline">
-              <img class="testimonial-avatar" src="assets/founders/shalin-hyper.png" alt="Shalin Shah profile photo" />
-              <img class="testimonial-logo" src="assets/logos/hyper.svg" alt="Hyper logo" />
-            </div>
-            <p>“He completely understood our vision. Ronald took the complex concept of an AI ‘super memory’ and turned it into a punchy, high-end motion piece that makes our platform look incredibly premium.”</p>
-            <div class="testimonial-author">
-              <strong>Shalin Shah</strong>
-              <span>Hyper</span>
-            </div>
-          </article>
+              <article class="testimonial-card founder-testimonial card">
+                <div class="testimonial-topline">
+                  <img class="testimonial-avatar" src="assets/founders/shalin-hyper.png" alt="Shalin Shah profile photo" />
+                  <img class="testimonial-logo" src="assets/logos/hyper.svg" alt="Hyper logo" />
+                </div>
+                <p>“He completely understood our vision. Ronald took the complex concept of an AI ‘super memory’ and turned it into a punchy, high-end motion piece that makes our platform look incredibly premium.”</p>
+                <div class="testimonial-author">
+                  <strong>Shalin Shah</strong>
+                  <span>Hyper</span>
+                </div>
+              </article>
 
-          <article class="testimonial-card founder-testimonial card reveal">
-            <div class="testimonial-topline">
-              <img class="testimonial-avatar" src="assets/founders/shuttle-team.jpg" alt="Shuttle team profile image" />
-              <img class="testimonial-logo" src="assets/logos/shuttle-wide.png" alt="Shuttle logo" />
+              <article class="testimonial-card founder-testimonial card">
+                <div class="testimonial-topline">
+                  <img class="testimonial-avatar" src="assets/founders/shuttle-team.jpg" alt="Shuttle team profile image" />
+                  <img class="testimonial-logo" src="assets/logos/shuttle-wide.png" alt="Shuttle logo" />
+                </div>
+                <p>“From the initial strategy to the final motion delivery, the execution was flawless. Ronald gave our product the exact premium feel and clarity we were looking for to drive conversions.”</p>
+                <div class="testimonial-author">
+                  <strong>Shuttle Team</strong>
+                  <span>Product team</span>
+                </div>
+              </article>
             </div>
-            <p>“From the initial strategy to the final motion delivery, the execution was flawless. Ronald gave our product the exact premium feel and clarity we were looking for to drive conversions.”</p>
-            <div class="testimonial-author">
-              <strong>Shuttle Team</strong>
-              <span>Product team</span>
+
+            <div class="testimonial-set" aria-hidden="true">
+              <article class="testimonial-card founder-testimonial card">
+                <div class="testimonial-topline">
+                  <img class="testimonial-avatar" src="assets/founders/nikita-hevn.jpeg" alt="" />
+                  <img class="testimonial-logo" src="assets/logos/hevn.svg" alt="" />
+                </div>
+                <p>“Ronald turned our highly complex financial infrastructure into a seamless, premium visual experience. He perfectly captured exactly how smooth global payments should feel. Incredible work.”</p>
+                <div class="testimonial-author">
+                  <strong>Nikita Briuzgin</strong>
+                  <span>Co-Founder &amp; CPO at HEVN (YC P26)</span>
+                </div>
+              </article>
+
+              <article class="testimonial-card founder-testimonial card">
+                <div class="testimonial-topline">
+                  <img class="testimonial-avatar" src="assets/founders/shalin-hyper.png" alt="" />
+                  <img class="testimonial-logo" src="assets/logos/hyper.svg" alt="" />
+                </div>
+                <p>“He completely understood our vision. Ronald took the complex concept of an AI ‘super memory’ and turned it into a punchy, high-end motion piece that makes our platform look incredibly premium.”</p>
+                <div class="testimonial-author">
+                  <strong>Shalin Shah</strong>
+                  <span>Hyper</span>
+                </div>
+              </article>
+
+              <article class="testimonial-card founder-testimonial card">
+                <div class="testimonial-topline">
+                  <img class="testimonial-avatar" src="assets/founders/shuttle-team.jpg" alt="" />
+                  <img class="testimonial-logo" src="assets/logos/shuttle-wide.png" alt="" />
+                </div>
+                <p>“From the initial strategy to the final motion delivery, the execution was flawless. Ronald gave our product the exact premium feel and clarity we were looking for to drive conversions.”</p>
+                <div class="testimonial-author">
+                  <strong>Shuttle Team</strong>
+                  <span>Product team</span>
+                </div>
+              </article>
             </div>
-          </article>
+          </div>
         </div>
       </section>
 
@@ -229,48 +286,65 @@
           <p>Each project was designed to simplify the product story and make the brand feel more valuable.</p>
         </div>
 
-        <div class="case-grid upgraded-case-grid">
-          <article class="case-card upgraded-case-card card reveal">
-            <div class="case-card-header">
-              <img src="assets/logos/hyper.svg" alt="Hyper logo" />
-              <span>AI product video</span>
-            </div>
-            <h3>Hyper</h3>
-            <h4>Problem</h4>
-            <p>The platform needed to demonstrate how its AI acts as a “super memory” for business data without showing a cluttered, overwhelming dashboard.</p>
-            <h4>Approach</h4>
-            <p>Built a fast, product-focused motion piece that stripped away the noise, focusing on the core value of automating workflows with custom AI agents.</p>
-            <h4>Result</h4>
-            <p>A punchy, high-converting top-of-funnel video that drives curiosity and clearly communicates the platform’s core mechanics in just 20 seconds.</p>
-          </article>
+        <div class="case-carousel reveal" aria-label="Case studies carousel">
+          <div class="case-carousel-viewport">
+            <div class="case-carousel-track">
+              <article class="case-card upgraded-case-card card" aria-label="Hyper case study">
+                <div class="case-card-header">
+                  <img src="assets/logos/hyper.svg" alt="Hyper logo" />
+                  <span>AI Product Motion</span>
+                </div>
+                <h3>Hyper</h3>
+                <h4>Problem</h4>
+                <p>The platform needed to demonstrate how its AI acts as a “super memory” for business data without showing a cluttered, overwhelming dashboard.</p>
+                <h4>Approach</h4>
+                <p>Built a fast, product-focused motion piece that stripped away the noise, focusing on the core value of automating workflows with custom AI agents.</p>
+                <h4>Result</h4>
+                <p>A punchy, high-converting top-of-funnel video that drives curiosity and clearly communicates the platform’s core mechanics in just 20 seconds.</p>
+                <a class="mini-button case-watch-button" href="#hyper" data-hero-project="hyper">Watch project</a>
+              </article>
 
-          <article class="case-card upgraded-case-card card reveal">
-            <div class="case-card-header">
-              <img src="assets/logos/shuttle-wide.png" alt="Shuttle logo" />
-              <span>SaaS explainer</span>
-            </div>
-            <h3>Shuttle</h3>
-            <h4>Problem</h4>
-            <p>The software needed a cleaner, more engaging way to explain its value proposition without falling into the trap of generic, template-looking explainer videos.</p>
-            <h4>Approach</h4>
-            <p>Applied a polished, explainer-style motion design prioritizing interface rhythm, clear sequencing, and strong product storytelling to guide the user.</p>
-            <h4>Result</h4>
-            <p>A sharp, launch-ready asset that elevates the brand’s perceived value and clearly walks users through the product’s benefits effortlessly.</p>
-          </article>
+              <article class="case-card upgraded-case-card card" aria-label="Shuttle case study">
+                <div class="case-card-header">
+                  <img src="assets/logos/shuttle-wide.png" alt="Shuttle logo" />
+                  <span>Product Explainer</span>
+                </div>
+                <h3>Shuttle</h3>
+                <h4>Problem</h4>
+                <p>The software needed a cleaner, more engaging way to explain its value proposition without falling into the trap of generic, template-looking explainer videos.</p>
+                <h4>Approach</h4>
+                <p>Applied a polished, explainer-style motion design prioritizing interface rhythm, clear sequencing, and strong product storytelling to guide the user.</p>
+                <h4>Result</h4>
+                <p>A sharp, launch-ready asset that elevates the brand’s perceived value and clearly walks users through the product’s benefits effortlessly.</p>
+                <a class="mini-button case-watch-button" href="#shuttle" data-hero-project="shuttle">Watch project</a>
+              </article>
 
-          <article class="case-card upgraded-case-card card reveal">
-            <div class="case-card-header">
-              <img src="assets/logos/hevn.svg" alt="HEVN logo" />
-              <span>Launch asset</span>
+              <article class="case-card upgraded-case-card card" aria-label="HEVN case study">
+                <div class="case-card-header">
+                  <img src="assets/logos/hevn.svg" alt="HEVN logo" />
+                  <span>Fintech Launch Video</span>
+                </div>
+                <h3>HEVN</h3>
+                <h4>Problem</h4>
+                <p>HEVN needed a launch asset to visually explain a highly complex cross-border payment infrastructure for global teams without overwhelming the viewer.</p>
+                <h4>Approach</h4>
+                <p>Focused on the core pain point (“money still moves slow”) and translated their solution into a sleek, cinematic UI animation with crafted sound design.</p>
+                <h4>Result</h4>
+                <p>A premium 20-second visual experience that perfectly positioned the YC-backed startup, making their global payment workspace look instant and frictionless.</p>
+                <a class="mini-button case-watch-button" href="#hevn" data-hero-project="hevn">Watch project</a>
+              </article>
             </div>
-            <h3>HEVN</h3>
-            <h4>Problem</h4>
-            <p>HEVN needed a launch asset to visually explain a highly complex cross-border payment infrastructure for global teams without overwhelming the viewer.</p>
-            <h4>Approach</h4>
-            <p>Focused on the core pain point (“money still moves slow”) and translated their solution into a sleek, cinematic UI animation with crafted sound design.</p>
-            <h4>Result</h4>
-            <p>A premium 20-second visual experience that perfectly positioned the YC-backed startup, making their global payment workspace look instant and frictionless.</p>
-          </article>
+          </div>
+
+          <div class="case-carousel-controls">
+            <button class="case-nav-button" type="button" aria-label="Previous case study" data-case-prev>Prev</button>
+            <div class="case-dots" aria-label="Choose case study">
+              <button class="case-dot is-active" type="button" aria-label="Show Hyper case study" aria-current="true" data-case-index="0"></button>
+              <button class="case-dot" type="button" aria-label="Show Shuttle case study" data-case-index="1"></button>
+              <button class="case-dot" type="button" aria-label="Show HEVN case study" data-case-index="2"></button>
+            </div>
+            <button class="case-nav-button" type="button" aria-label="Next case study" data-case-next>Next</button>
+          </div>
         </div>
       </section>
 
