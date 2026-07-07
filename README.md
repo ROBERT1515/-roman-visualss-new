@@ -1,13 +1,12 @@
 # ROMAN VISUALSS Landing
 
-Updated landing page with real motion design assets.
+Static HTML/CSS/JS landing page with real work videos, brand carousel, founder testimonials and case studies.
 
-## Included assets
+## Asset folders
 
-- `assets/videos/hyper.mp4`
-- `assets/videos/shuttle.mp4`
-- `assets/videos/hevn.mp4`
-- `assets/posters/*`
-- `assets/logos/*`
+- `assets/videos/` — compressed web videos
+- `assets/posters/` — video poster images
+- `assets/logos/` — brand logos
+- `assets/founders/` — founder/team profile images for testimonials
 
-The videos were compressed for web preview use. Replace testimonial placeholder quotes with the real client quotes before publishing.
+Open `index.html` with Live Server to preview locally.
