@@ -418,6 +418,7 @@ input:focus, textarea:focus { border-color: rgba(94, 255, 145, 0.75); box-shadow
 .checkbox input { width: 18px; height: 18px; accent-color: var(--accent); }
 .checkbox a { color: var(--text); text-decoration: underline; text-decoration-color: rgba(243, 255, 247, 0.35); }
 .form-status { grid-column: 1 / -1; min-height: 20px; color: var(--accent); font-size: 13px; font-weight: 700; }
+.honeypot { display: none; }
 .site-footer { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 64px 0 34px; color: var(--muted); font-size: 11px; font-weight: 700; }
 .site-footer nav { display: flex; flex-wrap: wrap; gap: 22px; }
 

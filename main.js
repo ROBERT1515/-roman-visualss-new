@@ -235,6 +235,7 @@ setCaseIndex(0);
 startCaseTimer();
 
 const form = document.querySelector(".contact-form");
+const FORM_ENDPOINT = "https://formspree.io/f/xlgzlppp";
 
 const validators = {
   name: (value) => (value.trim().length >= 2 ? "" : "Enter your name."),
@@ -306,33 +307,37 @@ if (form) {
     event.preventDefault();
 
     const status = form.querySelector(".form-status");
+    const submitButton = form.querySelector('button[type="submit"]');
+    const submitButtonText = submitButton?.textContent;
     if (!validateForm()) return;
 
-    // To connect Formspree later:
-    // 1. Replace FORM_ENDPOINT with your Formspree endpoint.
-    // 2. Uncomment the fetch block below.
-    const FORM_ENDPOINT = "";
-
-    if (!FORM_ENDPOINT) {
-      status.textContent = "Request received. This is a simulated submission for now.";
-      form.reset();
-      form.querySelectorAll("[aria-invalid]").forEach((field) => field.removeAttribute("aria-invalid"));
-      return;
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.textContent = "Sending...";
     }
+    status.textContent = "Sending your request...";
 
-    /*
-    const response = await fetch(FORM_ENDPOINT, {
-      method: "POST",
-      headers: { "Accept": "application/json" },
-      body: new FormData(form),
-    });
+    try {
+      const response = await fetch(FORM_ENDPOINT, {
+        method: "POST",
+        headers: { "Accept": "application/json" },
+        body: new FormData(form),
+      });
 
-    if (response.ok) {
-      status.textContent = "Request received. I will get back to you within 48 hours.";
-      form.reset();
-    } else {
-      status.textContent = "There was a problem sending your request. Please try again.";
+      if (response.ok) {
+        status.textContent = "Thank you. Your request has been sent successfully.";
+        form.reset();
+        form.querySelectorAll("[aria-invalid]").forEach((field) => field.removeAttribute("aria-invalid"));
+      } else {
+        status.textContent = "There was a problem sending your request. Please try again.";
+      }
+    } catch {
+      status.textContent = "Connection error. Please try again.";
+    } finally {
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent = submitButtonText;
+      }
     }
-    */
   });
 }
