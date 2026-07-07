@@ -19,8 +19,12 @@
   <body>
     <header class="site-header" aria-label="Primary navigation">
       <a class="logo" href="#top" aria-label="ROMAN VISUALSS home">ROMAN VISUALSS</a>
+      <button class="mobile-menu-toggle" type="button" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span>
+      </button>
       <nav class="desktop-nav" aria-label="Main menu">
         <a href="#work">Work</a>
+        <a href="#testimonials">Testimonials</a>
         <a href="#case-studies">Case Studies</a>
         <a href="#services">Services</a>
         <a href="#process">Process</a>
@@ -28,6 +32,15 @@
       </nav>
       <a class="button button-primary header-cta" href="#contact">Start a Project</a>
     </header>
+
+    <nav class="mobile-nav" aria-label="Mobile menu">
+      <a href="#work">Work</a>
+      <a href="#testimonials">Testimonials</a>
+      <a href="#case-studies">Case Studies</a>
+      <a href="#services">Services</a>
+      <a href="#process">Process</a>
+      <a href="#contact">Contact</a>
+    </nav>
 
     <main id="top">
       <section class="hero section-shell" aria-labelledby="hero-title">
@@ -39,17 +52,25 @@
             that need to explain, launch and sell better.
           </p>
           <div class="hero-actions">
-            <a class="button button-ghost" href="#work">Watch Reel</a>
+            <a class="button button-ghost" href="#work">Watch Work</a>
             <a class="button button-primary" href="#contact">Start a Project</a>
           </div>
         </div>
 
         <aside class="showreel-card card reveal delay-1" aria-label="Showreel preview">
-          <div class="media-window">
-            <span>Showreel Preview</span>
+          <div class="hero-video-stack">
+            <video
+              src="assets/videos/hyper.mp4"
+              poster="assets/posters/hyper-poster.jpg"
+              preload="metadata"
+              muted
+              playsinline
+              loop
+              autoplay
+            ></video>
           </div>
           <div class="stats">
-            <p><strong>04</strong><span>selected projects</span></p>
+            <p><strong>03</strong><span>real motion projects</span></p>
             <p><strong>48h</strong><span>reply window</span></p>
           </div>
         </aside>
@@ -65,23 +86,19 @@
       <section class="brand-strip section-shell" aria-label="Selected collaborations">
         <p class="kicker">Selected collaborations and visual projects</p>
         <div class="marquee" aria-hidden="true">
-          <div class="marquee-track">
-            <span>Aligned</span>
-            <span>Beatnbricks</span>
-            <span>Founder Launch</span>
-            <span>SaaS Product</span>
-            <span>AI Startup</span>
+          <div class="marquee-track logo-track">
+            <span><img src="assets/logos/hyper.svg" alt="" /> Hyper</span>
+            <span><img src="assets/logos/shuttle.png" alt="" /> Shuttle</span>
+            <span><img src="assets/logos/hevn.svg" alt="" /> HEVN</span>
             <span>Product UI</span>
-            <span>Real Estate Brand</span>
-            <span>Motion System</span>
-            <span>Aligned</span>
-            <span>Beatnbricks</span>
-            <span>Founder Launch</span>
             <span>SaaS Product</span>
-            <span>AI Startup</span>
+            <span>Launch Video</span>
+            <span><img src="assets/logos/hyper.svg" alt="" /> Hyper</span>
+            <span><img src="assets/logos/shuttle.png" alt="" /> Shuttle</span>
+            <span><img src="assets/logos/hevn.svg" alt="" /> HEVN</span>
             <span>Product UI</span>
-            <span>Real Estate Brand</span>
-            <span>Motion System</span>
+            <span>SaaS Product</span>
+            <span>Launch Video</span>
           </div>
         </div>
       </section>
@@ -89,38 +106,98 @@
       <section id="work" class="section-shell section-block" aria-labelledby="work-title">
         <div class="section-heading reveal">
           <p class="kicker">Selected work</p>
-          <h2 id="work-title">Selected Work</h2>
-          <p>Visual projects created to make products easier to understand, launch and sell.</p>
+          <h2 id="work-title">Real motion projects</h2>
+          <p>Three motion design pieces made to make products and brands feel sharper, clearer and more premium.</p>
         </div>
 
-        <div class="work-grid">
-          <article class="work-card card reveal">
-            <div class="media-window"><span>SaaS Explainer Video</span></div>
-            <p class="eyebrow">SaaS explainer video</p>
-            <h3>Aligned</h3>
-            <p>Clean interface motion for an AI workflow product.</p>
-            <a class="mini-button" href="#case-studies">View case study</a>
+        <div class="work-grid real-work-grid">
+          <article class="work-card project-card card reveal" id="hyper">
+            <div class="project-media">
+              <video
+                src="assets/videos/hyper.mp4"
+                poster="assets/posters/hyper-poster.jpg"
+                preload="metadata"
+                muted
+                playsinline
+                loop
+                controls
+              ></video>
+            </div>
+            <div class="project-meta">
+              <img class="project-logo" src="assets/logos/hyper.svg" alt="Hyper logo" />
+              <p class="eyebrow">Product motion design</p>
+              <h3>Hyper</h3>
+              <p>A clean product-focused motion piece created to make the software feel modern, fast and premium.</p>
+              <a class="mini-button" href="#contact">Start similar project</a>
+            </div>
           </article>
-          <article class="work-card card reveal">
-            <div class="media-window"><span>Luxury Real Estate Motion</span></div>
-            <p class="eyebrow">Luxury real estate motion</p>
-            <h3>Beatnbricks</h3>
-            <p>Premium visuals for a high-end real estate brand.</p>
-            <a class="mini-button" href="#case-studies">View case study</a>
+
+          <article class="work-card project-card card reveal" id="shuttle">
+            <div class="project-media">
+              <video
+                src="assets/videos/shuttle.mp4"
+                poster="assets/posters/shuttle-poster.jpg"
+                preload="metadata"
+                muted
+                playsinline
+                loop
+                controls
+              ></video>
+            </div>
+            <div class="project-meta">
+              <img class="project-logo" src="assets/logos/shuttle-wide.png" alt="Shuttle logo" />
+              <p class="eyebrow">SaaS / product video</p>
+              <h3>Shuttle</h3>
+              <p>A polished explainer-style motion design built around clarity, interface rhythm and product storytelling.</p>
+              <a class="mini-button" href="#contact">Start similar project</a>
+            </div>
           </article>
-          <article class="work-card card reveal">
-            <div class="media-window"><span>MVP Intro Video</span></div>
-            <p class="eyebrow">MVP intro video</p>
-            <h3>Founder Launch Video</h3>
-            <p>A cinematic launch asset for an early-stage product.</p>
-            <a class="mini-button" href="#case-studies">View case study</a>
+
+          <article class="work-card project-card card reveal" id="hevn">
+            <div class="project-media">
+              <video
+                src="assets/videos/hevn.mp4"
+                poster="assets/posters/hevn-poster.jpg"
+                preload="metadata"
+                muted
+                playsinline
+                loop
+                controls
+              ></video>
+            </div>
+            <div class="project-meta">
+              <img class="project-logo" src="assets/logos/hevn.svg" alt="HEVN logo" />
+              <p class="eyebrow">Brand motion / launch asset</p>
+              <h3>HEVN</h3>
+              <p>A premium motion asset created to give the brand a sharper, more cinematic and launch-ready presence.</p>
+              <a class="mini-button" href="#contact">Start similar project</a>
+            </div>
           </article>
-          <article class="work-card card reveal">
-            <div class="media-window"><span>Interface Motion</span></div>
-            <p class="eyebrow">Interface motion</p>
-            <h3>Product UI Animation</h3>
-            <p>Polished UI movement for digital products.</p>
-            <a class="mini-button" href="#case-studies">View case study</a>
+        </div>
+      </section>
+
+      <section id="testimonials" class="section-shell section-block" aria-labelledby="testimonial-title">
+        <div class="section-heading reveal">
+          <p class="kicker">Testimonials</p>
+          <h2 id="testimonial-title">Client words belong here</h2>
+          <p>Replace these placeholder quotes with the real testimonials from your clients.</p>
+        </div>
+
+        <div class="testimonial-grid">
+          <article class="testimonial-card card reveal">
+            <img src="assets/logos/hyper.svg" alt="Hyper logo" />
+            <p>“Add the real Hyper testimonial here. Keep it short, specific and focused on the result.”</p>
+            <span>Hyper team</span>
+          </article>
+          <article class="testimonial-card card reveal">
+            <img src="assets/logos/shuttle.png" alt="Shuttle logo" />
+            <p>“Add the real Shuttle testimonial here. Mention clarity, quality, speed or business impact.”</p>
+            <span>Shuttle team</span>
+          </article>
+          <article class="testimonial-card card reveal">
+            <img src="assets/logos/hevn.svg" alt="HEVN logo" />
+            <p>“Add the real HEVN testimonial here. Use the exact client quote before publishing.”</p>
+            <span>HEVN team</span>
           </article>
         </div>
       </section>
@@ -128,37 +205,37 @@
       <section id="case-studies" class="section-shell section-block" aria-labelledby="case-title">
         <div class="section-heading reveal">
           <p class="kicker">Case studies</p>
-          <h2 id="case-title">From problem to premium visual asset</h2>
-          <p>Each project starts with direction and ends with a polished result.</p>
+          <h2 id="case-title">From product idea to premium motion asset</h2>
+          <p>Each project starts with visual direction and ends with a polished product story.</p>
         </div>
 
         <div class="case-grid">
           <article class="case-card card reveal">
-            <h3>Aligned</h3>
+            <h3>Hyper</h3>
             <h4>Problem</h4>
-            <p>The product needed a cleaner way to explain complex workflows.</p>
+            <p>The product needed a visual piece that felt fast, clear and premium.</p>
             <h4>Approach</h4>
-            <p>Clean SaaS-style animation focused on UI motion, clarity and product storytelling.</p>
+            <p>Product-focused animation, clean motion pacing and a polished visual system.</p>
             <h4>Result</h4>
-            <p>A more polished, trustworthy and understandable product presentation.</p>
+            <p>A sharper product presentation that feels easier to understand and more trustworthy.</p>
           </article>
           <article class="case-card card reveal">
-            <h3>Beatnbricks</h3>
+            <h3>Shuttle</h3>
             <h4>Problem</h4>
-            <p>The brand needed premium visuals for luxury real estate content.</p>
+            <p>The software needed a cleaner way to explain value without feeling generic.</p>
             <h4>Approach</h4>
-            <p>Elegant motion scenes with a clean, high-end visual direction.</p>
+            <p>SaaS-style motion with clear sequencing, interface rhythm and smooth transitions.</p>
             <h4>Result</h4>
-            <p>The brand looked more premium and consistent across digital platforms.</p>
+            <p>A polished explainer asset that makes the product feel more launch-ready.</p>
           </article>
           <article class="case-card card reveal">
-            <h3>Founder Launch Video</h3>
+            <h3>HEVN</h3>
             <h4>Problem</h4>
-            <p>A founder needed a strong intro video for a product still in MVP stage.</p>
+            <p>The brand needed a stronger visual asset for digital presentation.</p>
             <h4>Approach</h4>
-            <p>A visual narrative that made the product feel clear, modern and ready to present.</p>
+            <p>Premium motion direction with clean scenes, elegant timing and cinematic polish.</p>
             <h4>Result</h4>
-            <p>The launch asset communicated the idea with more confidence.</p>
+            <p>A motion piece that gives the brand a more elevated and memorable presence.</p>
           </article>
         </div>
       </section>
@@ -171,34 +248,13 @@
         </div>
 
         <div class="service-grid">
-          <article class="service-card card reveal">
-            <h3>SaaS Explainer Videos</h3>
-            <p>High-end visuals designed for clarity, trust and product storytelling.</p>
-          </article>
-          <article class="service-card card reveal">
-            <h3>Product Launch Videos</h3>
-            <p>High-end visuals designed for clarity, trust and product storytelling.</p>
-          </article>
-          <article class="service-card card reveal">
-            <h3>Founder Intro Videos</h3>
-            <p>High-end visuals designed for clarity, trust and product storytelling.</p>
-          </article>
-          <article class="service-card card reveal">
-            <h3>UI / App Animations</h3>
-            <p>High-end visuals designed for clarity, trust and product storytelling.</p>
-          </article>
-          <article class="service-card card reveal">
-            <h3>Social Ads</h3>
-            <p>High-end visuals designed for clarity, trust and product storytelling.</p>
-          </article>
-          <article class="service-card card reveal">
-            <h3>Motion Graphics</h3>
-            <p>High-end visuals designed for clarity, trust and product storytelling.</p>
-          </article>
-          <article class="service-card card reveal">
-            <h3>Pitch Deck Visuals</h3>
-            <p>High-end visuals designed for clarity, trust and product storytelling.</p>
-          </article>
+          <article class="service-card card reveal"><h3>SaaS Explainer Videos</h3><p>High-end visuals designed for clarity, trust and product storytelling.</p></article>
+          <article class="service-card card reveal"><h3>Product Launch Videos</h3><p>Motion assets that help a product look ready, sharp and valuable.</p></article>
+          <article class="service-card card reveal"><h3>Founder Intro Videos</h3><p>Premium videos for founders who need to present an MVP or digital product.</p></article>
+          <article class="service-card card reveal"><h3>UI / App Animations</h3><p>Interface movement, product flows and clean software motion.</p></article>
+          <article class="service-card card reveal"><h3>Social Ads</h3><p>Short-form motion pieces built for attention and clarity.</p></article>
+          <article class="service-card card reveal"><h3>Motion Graphics</h3><p>Visual systems, scenes and animated elements for brands.</p></article>
+          <article class="service-card card reveal"><h3>Pitch Deck Visuals</h3><p>Motion and visuals that make decks feel more premium and convincing.</p></article>
         </div>
       </section>
 
@@ -217,7 +273,7 @@
           <article class="price-card card reveal">
             <h3>Custom Launch Systems</h3>
             <strong>Quote-based</strong>
-            <p>For bigger campaigns, multiple assets or systems.</p>
+            <p>For bigger campaigns, multiple assets or motion systems.</p>
           </article>
         </div>
       </section>
@@ -230,26 +286,10 @@
         </div>
 
         <div class="process-grid">
-          <article class="process-card card reveal">
-            <span>01</span>
-            <h3>Discovery</h3>
-            <p>We define the goal, direction and produce assets ready to publish.</p>
-          </article>
-          <article class="process-card card reveal">
-            <span>02</span>
-            <h3>Script &amp; Visual Direction</h3>
-            <p>We define the goal, direction and produce assets ready to publish.</p>
-          </article>
-          <article class="process-card card reveal">
-            <span>03</span>
-            <h3>Design &amp; Animation</h3>
-            <p>We define the goal, direction and produce assets ready to publish.</p>
-          </article>
-          <article class="process-card card reveal">
-            <span>04</span>
-            <h3>Delivery</h3>
-            <p>We define the goal, direction and produce assets ready to publish.</p>
-          </article>
+          <article class="process-card card reveal"><span>01</span><h3>Discovery</h3><p>We define the goal, product, audience and visual direction.</p></article>
+          <article class="process-card card reveal"><span>02</span><h3>Script &amp; Visual Direction</h3><p>We structure the story and define how the product should feel.</p></article>
+          <article class="process-card card reveal"><span>03</span><h3>Design &amp; Animation</h3><p>I build polished scenes, movement, transitions and final motion.</p></article>
+          <article class="process-card card reveal"><span>04</span><h3>Delivery</h3><p>You receive the final assets ready to publish and present.</p></article>
         </div>
       </section>
 
@@ -260,46 +300,14 @@
         </div>
 
         <form class="contact-form reveal" novalidate>
-          <div class="field">
-            <label for="name">Name</label>
-            <input id="name" name="name" type="text" autocomplete="name" required />
-            <small class="error-message"></small>
-          </div>
-          <div class="field">
-            <label for="company">Company name</label>
-            <input id="company" name="company" type="text" autocomplete="organization" required />
-            <small class="error-message"></small>
-          </div>
-          <div class="field">
-            <label for="email">Email</label>
-            <input id="email" name="email" type="email" autocomplete="email" required />
-            <small class="error-message"></small>
-          </div>
-          <div class="field">
-            <label for="website">Website</label>
-            <input id="website" name="website" type="url" inputmode="url" placeholder="https://" />
-            <small class="error-message"></small>
-          </div>
-          <div class="field">
-            <label for="project">Project type</label>
-            <input id="project" name="project" type="text" required />
-            <small class="error-message"></small>
-          </div>
-          <div class="field">
-            <label for="budget">Budget range</label>
-            <input id="budget" name="budget" type="text" required />
-            <small class="error-message"></small>
-          </div>
-          <div class="field">
-            <label for="timeline">Timeline</label>
-            <input id="timeline" name="timeline" type="text" required />
-            <small class="error-message"></small>
-          </div>
-          <div class="field field-wide">
-            <label for="message">Tell me about your project</label>
-            <textarea id="message" name="message" rows="4" required></textarea>
-            <small class="error-message"></small>
-          </div>
+          <div class="field"><label for="name">Name</label><input id="name" name="name" type="text" autocomplete="name" required /><small class="error-message"></small></div>
+          <div class="field"><label for="company">Company name</label><input id="company" name="company" type="text" autocomplete="organization" required /><small class="error-message"></small></div>
+          <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" autocomplete="email" required /><small class="error-message"></small></div>
+          <div class="field"><label for="website">Website</label><input id="website" name="website" type="url" inputmode="url" placeholder="https://" /><small class="error-message"></small></div>
+          <div class="field"><label for="project">Project type</label><input id="project" name="project" type="text" required /><small class="error-message"></small></div>
+          <div class="field"><label for="budget">Budget range</label><input id="budget" name="budget" type="text" required /><small class="error-message"></small></div>
+          <div class="field"><label for="timeline">Timeline</label><input id="timeline" name="timeline" type="text" required /><small class="error-message"></small></div>
+          <div class="field field-wide"><label for="message">Tell me about your project</label><textarea id="message" name="message" rows="4" required></textarea><small class="error-message"></small></div>
           <div class="form-footer">
             <label class="checkbox">
               <input id="privacy" name="privacy" type="checkbox" required />
@@ -315,8 +323,8 @@
     <footer class="site-footer section-shell">
       <p>ROMAN VISUALSS</p>
       <nav aria-label="Footer links">
-        <a href="#">Instagram</a>
-        <a href="#">Behance</a>
+        <a href="https://www.instagram.com/roman.visualss/" target="_blank" rel="noopener">Instagram</a>
+        <a href="https://www.behance.net/ronaldmaldonado5" target="_blank" rel="noopener">Behance</a>
         <a href="privacy.html">Privacy Policy</a>
         <a href="mailto:business@romanvisualss.art">business@romanvisualss.art</a>
       </nav>

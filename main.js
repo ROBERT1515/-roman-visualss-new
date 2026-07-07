@@ -18,6 +18,15 @@ if (!prefersReducedMotion) {
   document.querySelectorAll(".reveal").forEach((element) => element.classList.add("is-visible"));
 }
 
+const menuButton = document.querySelector(".mobile-menu-toggle");
+const mobileNav = document.querySelector(".mobile-nav");
+
+menuButton?.addEventListener("click", () => {
+  const isOpen = menuButton.getAttribute("aria-expanded") === "true";
+  menuButton.setAttribute("aria-expanded", String(!isOpen));
+  mobileNav?.classList.toggle("is-open", !isOpen);
+});
+
 document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
   anchor.addEventListener("click", (event) => {
     const targetId = anchor.getAttribute("href");
@@ -27,7 +36,19 @@ document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
     if (!target) return;
 
     event.preventDefault();
+    mobileNav?.classList.remove("is-open");
+    menuButton?.setAttribute("aria-expanded", "false");
     target.scrollIntoView({ behavior: prefersReducedMotion ? "auto" : "smooth", block: "start" });
+  });
+});
+
+document.querySelectorAll(".project-media video").forEach((video) => {
+  video.addEventListener("mouseenter", () => {
+    if (!prefersReducedMotion) video.play().catch(() => {});
+  });
+
+  video.addEventListener("mouseleave", () => {
+    if (!video.controls) video.pause();
   });
 });
 
@@ -50,7 +71,7 @@ const validators = {
   project: (value) => (value.trim().length >= 3 ? "" : "Tell me the project type."),
   budget: (value) => (value.trim().length >= 2 ? "" : "Add a budget range."),
   timeline: (value) => (value.trim().length >= 2 ? "" : "Add a timeline."),
-  message: (value) => (value.trim().length >= 12 ? "" : "Share a few more details."),
+  message: (value) => (value.trim().length >= 30 ? "" : "Share at least 30 characters."),
 };
 
 function setFieldError(field, message) {
@@ -99,14 +120,37 @@ if (form) {
     });
   });
 
-  form.addEventListener("submit", (event) => {
+  form.addEventListener("submit", async (event) => {
     event.preventDefault();
 
     const status = form.querySelector(".form-status");
     if (!validateForm()) return;
 
-    status.textContent = "Request received. This is a simulated submission for now.";
-    form.reset();
-    form.querySelectorAll("[aria-invalid]").forEach((field) => field.removeAttribute("aria-invalid"));
+    // To connect Formspree later:
+    // 1. Replace FORM_ENDPOINT with your Formspree endpoint.
+    // 2. Uncomment the fetch block below.
+    const FORM_ENDPOINT = "";
+
+    if (!FORM_ENDPOINT) {
+      status.textContent = "Request received. This is a simulated submission for now.";
+      form.reset();
+      form.querySelectorAll("[aria-invalid]").forEach((field) => field.removeAttribute("aria-invalid"));
+      return;
+    }
+
+    /*
+    const response = await fetch(FORM_ENDPOINT, {
+      method: "POST",
+      headers: { "Accept": "application/json" },
+      body: new FormData(form),
+    });
+
+    if (response.ok) {
+      status.textContent = "Request received. I will get back to you within 48 hours.";
+      form.reset();
+    } else {
+      status.textContent = "There was a problem sending your request. Please try again.";
+    }
+    */
   });
 }
