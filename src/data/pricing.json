@@ -1,0 +1,25 @@
+{
+  "heading": "Services",
+  "notes": {
+    "lead": "I’ll take a look at your website first to make sure I’m the right fit to help you",
+    "fine": "Companies selected will be contacted. Everything here is handcrafted."
+  },
+  "plans": [
+    {
+      "id": "standard",
+      "name": "30 Sec",
+      "note": "*without voiceover",
+      "price": { "yearly": "1.500" },
+      "featured": false,
+      "cta": { "label": "Get Started", "href": "#contact" }
+    },
+    {
+      "id": "pro",
+      "name": "60 Sec",
+      "note": "*with voiceover",
+      "price": { "yearly": "3.000" },
+      "featured": true,
+      "cta": { "label": "Get Started", "href": "#contact" }
+    }
+  ]
+}

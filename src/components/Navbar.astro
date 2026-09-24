@@ -1,0 +1,148 @@
+---
+import { CALENDAR_URL, PORTFOLIO_URL } from "../config";
+
+type NavLink = { label: string; href: string; external?: boolean };
+
+const links: NavLink[] = [
+  { label: "Portfolio", href: PORTFOLIO_URL, external: true },
+  { label: "Calendar", href: CALENDAR_URL, external: true },
+  { label: "Contact", href: "#contact" },
+];
+---
+
+<!-- Cabecera fija: el ancho NO ocupa toda la pantalla, solo su contenido.
+     Sin fondo sobre el hero; al pasar a la siguiente sección el fondo
+     (blur blanco) se desliza hasta su posición normal.
+     Además lleva un "detector de color": mide la luminosidad del fondo
+     animado del banner que queda detrás y adapta el color del texto para
+     que siempre contraste (fondo claro → texto oscuro, fondo oscuro →
+     texto claro). -->
+<header class="fixed inset-x-0 top-0 z-50">
+  <nav
+    class="mx-auto flex max-w-6xl items-center justify-start px-6 pt-8 sm:px-10"
+  >
+    <div id="site-nav" class="site-nav relative w-fit">
+      <span class="site-nav-bg" aria-hidden="true"></span>
+      <ul
+        class="relative flex items-center gap-7 rounded-full px-5 py-2.5 text-sm sm:gap-8 sm:px-6 sm:py-3"
+      >
+        {
+          links.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                class="nav-link transition-colors"
+                target={link.external ? "_blank" : undefined}
+                rel={link.external ? "noopener noreferrer" : undefined}
+              >
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </nav>
+</header>
+
+<style>
+  /* Colores del texto controlados por variables para poder invertirlos
+     según el fondo del banner (clases .on-dark / .is-scrolled) */
+  .site-nav {
+    --nav-text: var(--color-ink-soft);
+    --nav-text-hover: var(--color-ink);
+  }
+
+  .site-nav .nav-link {
+    color: var(--nav-text);
+  }
+  .site-nav .nav-link:hover {
+    color: var(--nav-text-hover);
+  }
+
+  /* Banner oscuro detrás del header (sin scroll) → texto claro */
+  .site-nav.on-dark {
+    --nav-text: #f7f6f1;
+    --nav-text-hover: #ffffff;
+  }
+
+  /* Al hacer scroll el fondo blanco/blur aparece → texto oscuro.
+     Se declara después de .on-dark para ganar si coinciden. */
+  .site-nav.is-scrolled {
+    --nav-text: var(--color-ink);
+    --nav-text-hover: var(--color-ink);
+  }
+
+  /* Capa de fondo independiente: oculta sobre el hero y, al hacer scroll
+     por debajo del banner principal, se translada a su posición normal */
+  .site-nav-bg {
+    position: absolute;
+    inset: 0;
+    border-radius: 9999px;
+    background: rgba(253, 253, 251, 0.75);
+    -webkit-backdrop-filter: blur(14px) saturate(1.4);
+    backdrop-filter: blur(14px) saturate(1.4);
+    box-shadow:
+      inset 0 0 0 1px rgba(167, 171, 163, 0.35),
+      0 10px 30px rgba(75, 79, 73, 0.08);
+    opacity: 0;
+    transform: translateX(-100%);
+    transition:
+      transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.35s ease;
+    pointer-events: none;
+  }
+
+  .site-nav.is-scrolled .site-nav-bg {
+    opacity: 1;
+    transform: translateX(0);
+  }
+</style>
+
+<script>
+  import { watchAutoContrast } from "../scripts/autoContrast";
+
+  const nav = document.getElementById("site-nav");
+  const hero = document.getElementById("hero");
+
+  // ─────────────────────────────────────────────────────────────
+  // Detector de color del banner
+  //
+  // El fondo del hero es un vídeo/GIF animado que puede cambiarse, así que
+  // la franja que queda justo detrás de la cabecera se muestrea cada pocos
+  // ms y se mide su luminancia media:
+  //   · fondo claro  → texto oscuro (estado por defecto)
+  //   · fondo oscuro → texto claro  (clase .on-dark)
+  // El detector (con histéresis de dos umbrales para que el texto no
+  // parpadee cuando el vídeo alterna tonos) vive en
+  // src/scripts/autoContrast.ts y lo comparte el titular del banner.
+  // ─────────────────────────────────────────────────────────────
+
+  // ¿El hero (banner principal) ya pasó por encima de la cabecera?
+  const isPastHero = () =>
+    !!hero && window.scrollY >= hero.offsetTop + hero.offsetHeight - 1;
+
+  const update = () => {
+    if (!nav) return;
+    nav.classList.toggle("is-scrolled", isPastHero());
+  };
+
+  // Contraste de los enlaces del menú: sobre fondo oscuro del banner pasan a
+  // texto claro y sobre fondo claro vuelven al oscuro.
+  if (nav && hero) {
+    watchAutoContrast({
+      target: nav,
+      container: hero,
+      media: () =>
+        document.querySelector<HTMLVideoElement | HTMLImageElement>(
+          "#hero video, #hero img"
+        ),
+      darkClass: "on-dark",
+      // Con el fondo blanco del scroll el texto siempre es oscuro
+      auto: () => !isPastHero(),
+    });
+  }
+
+  window.addEventListener("scroll", update, { passive: true });
+  update();
+</script>

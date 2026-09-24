@@ -1,0 +1,197 @@
+/* ============================================================
+   pricing.css — sección de precios (PricingSection.astro)
+   Solo lo que Tailwind no cubre bien: el degradado de la palabra
+   gigante, el hilo del que cuelgan las tarjetas, el balanceo, los
+   materiales de las tarjetas (cristal claro de iOS en reposo →
+   esmerilado de One UI al pasar el ratón) y el halo de fondo. Los
+   colores salen siempre de variables.css. Se importa desde
+   index.css.
+   ============================================================ */
+
+/* ---------- Palabra gigante ---------- */
+
+/* "Pricing" con el metal del sitio (claro arriba → oscuro abajo) pero
+   desvaneciéndose hacia abajo, para que las tarjetas parezcan colgar
+   por delante del titular. */
+.pricing-word {
+  background-image: linear-gradient(
+    180deg,
+    var(--color-metal-dark) 0%,
+    rgba(124, 128, 122, 0.45) 45%,
+    rgba(124, 128, 122, 0) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ---------- Tarjetas colgando de un hilo ---------- */
+
+/* El hilo sale del borde superior de la tarjeta y se desvanece hacia
+   arriba (position: absolute respecto al contenedor de la tarjeta). */
+.pricing-string {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  width: 1px;
+  height: 70px;
+  background: linear-gradient(
+    rgba(167, 171, 163, 0),
+    rgba(167, 171, 163, 0.55)
+  );
+}
+
+/* La tarjeta destacada cuelga de un hilo verde, algo más grueso. */
+.pricing-featured .pricing-string {
+  width: 2px;
+  background: linear-gradient(rgba(47, 91, 65, 0), var(--color-forest));
+}
+
+/* Balanceo: cada tarjeta oscila como un péndulo desde el punto donde
+   la sujeta el hilo, con un desfase para que no se muevan a la vez. */
+.pricing-sway {
+  transform-origin: top center;
+  animation: pricing-sway 6s ease-in-out infinite;
+}
+
+.pricing-sway:nth-child(2) {
+  animation-delay: -3s;
+}
+
+@keyframes pricing-sway {
+  0%,
+  100% {
+    transform: rotate(-0.6deg);
+  }
+  50% {
+    transform: rotate(0.6deg);
+  }
+}
+
+/* ---------- Tarjetas: cristal claro (iOS) → esmerilado (One UI) ---------- */
+
+/* Estado normal = material "Clear" de iOS: panel casi transparente, blur
+   mínimo, canto y filos de luz. El paso a esmerilado ocurre al pasar el ratón
+   (ver más abajo). */
+.pricing-card {
+  position: relative;
+  isolation: isolate;
+  border-radius: 2.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  -webkit-backdrop-filter: blur(2px) saturate(1.6) brightness(1.05);
+  backdrop-filter: blur(2px) saturate(1.6) brightness(1.05);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.25),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -1.5px 0 rgba(255, 255, 255, 0.25),
+    inset 0 0 22px rgba(255, 255, 255, 0.12);
+  transition:
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.5s ease,
+    border-color 0.5s ease,
+    background-color 0.5s ease,
+    -webkit-backdrop-filter 0.5s ease,
+    backdrop-filter 0.5s ease;
+}
+
+/* Reflejo curvo de luz en las esquinas (el ::after del material Clear). */
+.pricing-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0.35) 0%,
+    transparent 28%,
+    transparent 72%,
+    rgba(255, 255, 255, 0.18) 100%
+  );
+  pointer-events: none;
+}
+
+/* Hover: el levante que ya tenía la tarjeta + el material "Blur" de One UI
+   (esmerilado de 36px, saturación 1.15, canto más tenue y su sombra), con el
+   tinte del tono de cada tarjeta avivado al esmerilarse. */
+.pricing-card:hover,
+.pricing-card:focus-within {
+  transform: translateY(-8px) scale(1.012);
+  border-color: rgba(255, 255, 255, 0.18);
+  -webkit-backdrop-filter: blur(36px) saturate(1.15);
+  backdrop-filter: blur(36px) saturate(1.15);
+  box-shadow:
+    0 14px 36px rgba(0, 0, 0, 0.22),
+    0 46px 80px -36px rgba(31, 36, 31, 0.5);
+}
+
+/* Tonos. La clara lleva un gris de la paleta para que el cristal se vea y el
+   paso a esmerilado del hover se note (gris → blanco esmerilado); la verde
+   lleva el verde de marca, más cargado porque es el mínimo con el que el texto
+   crema sigue legible sobre un fondo claro. */
+.pricing-card--glass {
+  background-color: rgba(122, 127, 119, 0.2);
+}
+
+.pricing-card--forest {
+  color: var(--color-cream);
+  background-color: rgba(47, 91, 65, 0.5);
+}
+
+/* Al esmerilarse el tinte se aviva (en One UI el material va más cargado que
+   en el cristal claro), cada tarjeta con su tono. */
+.pricing-card--glass:hover,
+.pricing-card--glass:focus-within {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.pricing-card--forest:hover,
+.pricing-card--forest:focus-within {
+  background-color: rgba(47, 91, 65, 0.6);
+}
+
+/* ---------- Halo de fondo ---------- */
+
+/* Resplandor inferior de la referencia, con el verde de la marca en
+   lugar del violeta. Es decorativo: el contenedor de contenido va
+   después en el DOM, así que se pinta por encima. Además es lo que el
+   cristal de las tarjetas difumina: cuanto más sube y más intenso es,
+   más se lee la transparencia de las superficies. */
+.pricing-halo {
+  position: absolute;
+  inset: auto -10% -26% -10%;
+  height: 68vh;
+  pointer-events: none;
+  background: radial-gradient(
+      ellipse at 15% 100%,
+      rgba(47, 91, 65, 0.3),
+      rgba(47, 91, 65, 0) 58%
+    ),
+    radial-gradient(
+      ellipse at 88% 100%,
+      rgba(76, 122, 92, 0.24),
+      rgba(76, 122, 92, 0) 54%
+    ),
+    radial-gradient(
+      ellipse at 52% 78%,
+      rgba(231, 236, 227, 0.5),
+      rgba(231, 236, 227, 0) 60%
+    );
+}
+
+/* ---------- Movimiento reducido ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .pricing-sway {
+    animation: none;
+  }
+
+  .pricing-card {
+    transition: none;
+  }
+
+  .pricing-card:hover,
+  .pricing-card:focus-within {
+    transform: none;
+  }
+}

@@ -1,0 +1,109 @@
+---
+interface Props {
+  /** Imagen de fondo del banner (p. ej. "/fondo.gif" o "/fondo.jpg").
+      Un GIF animado se repite en bucle automáticamente. */
+  bgImage?: string;
+  /** Vídeo de fondo del banner (p. ej. "/fondo.mp4" o ".webm").
+      Se reproduce en bucle, en silencio y sin controles. */
+  bgVideo?: string;
+}
+
+const { bgImage, bgVideo = `${import.meta.env.BASE_URL}original-69f121f04196b65f1ae09110d039806e.mp4` } = Astro.props;
+---
+
+<!-- Banner principal: sección de portada (100svh en escritorio, 70svh en
+     móvil) con fondo opcional.
+     El fondo (vídeo en bucle o imagen/GIF) se coloca en una capa propia
+     (hero-media) que siempre mide exactamente el banner y recorta el sobrante
+     con object-cover: mantiene la proporción y calidad del archivo original
+     (sin deformar) y jamás se sale del tamaño del banner.
+     En móvil el banner mide 70svh: al ser menos alto, object-cover amplía
+     mucho menos el archivo (menos recorte lateral y menos zoom) y sigue
+     cubriendo todo el banner sin franjas ni deformación. -->
+<section
+  id="hero"
+  class="relative flex min-h-[70svh] w-full flex-col justify-center overflow-hidden text-center sm:min-h-svh"
+>
+  <div class="hero-media" aria-hidden="true">
+    {bgVideo && (
+      <video
+        src={bgVideo}
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="metadata"
+      />
+    )}
+    {bgImage && !bgVideo && <img src={bgImage} alt="" />}
+  </div>
+
+  <div class="hero-copy relative z-10 mx-auto w-full max-w-6xl px-6 sm:px-10">
+    <h1 class="font-display leading-[1.05] tracking-tight">
+      <span class="text-metal block text-4xl font-medium sm:text-6xl">
+        I am the only option
+      </span>
+      <span class="text-metal block text-5xl font-semibold sm:text-7xl">
+        for you problem
+      </span>
+    </h1>
+  </div>
+</section>
+
+<script>
+  import { watchAutoContrast } from "../scripts/autoContrast";
+
+  // El titular se recolorea según lo oscuro que sea el vídeo justo detrás de
+  // él: sobre fondo oscuro pasa al metal claro (clase .on-dark, definida en
+  // el <style>) y sobre fondo claro se queda con el metal del sitio.
+  const hero = document.getElementById("hero");
+  const copy = hero?.querySelector<HTMLElement>(".hero-copy");
+
+  if (hero && copy) {
+    watchAutoContrast({
+      target: copy,
+      container: hero,
+      media: () =>
+        hero.querySelector<HTMLVideoElement | HTMLImageElement>("video, img"),
+    });
+  }
+</script>
+
+<style>
+  /* Capa del fondo: mide exactamente el banner (inset: 0) y recorta con
+     overflow-hidden cualquier sobrante del archivo. No captura clics. */
+  .hero-media {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    background: var(--color-cream);
+  }
+
+  /* El archivo llena la capa conservando su proporción (sin estirarse):
+     object-fit: cover rellena todo el banner y el exceso se recorta. */
+  .hero-media video,
+  .hero-media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  /* Titular sobre fondo oscuro: la clase .on-dark la pone el detector de
+     contraste (src/scripts/autoContrast.ts). Mantiene el efecto de metal
+     grabado, pero en tonos claros, y añade un halo que lo separa del vídeo
+     para que siga siendo legible. */
+  .hero-copy.on-dark .text-metal {
+    background-image:
+      linear-gradient(180deg, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0) 40%),
+      linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0) 60%,
+        rgba(255, 255, 255, 0.6) 100%
+      ),
+      linear-gradient(180deg, #ffffff 0%, #cbd0c8 100%);
+    filter: drop-shadow(0 3px 18px rgba(0, 0, 0, 0.5));
+  }
+</style>

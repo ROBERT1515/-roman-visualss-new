@@ -1,0 +1,181 @@
+---
+/**
+ * Sección de precios.
+ *
+ * Adaptación al sitio de un diseño de referencia (tarjetas colgando de un
+ * hilo sobre una palabra gigante). Se mantiene la estructura y la
+ * organización del original — palabra gigante → tarjetas con plan, precio y
+ * botón — pero con los materiales de esta página:
+ *
+ *   - Paleta del sitio: crema / sage / verde de marca / ink. Nada de
+ *     violeta, rosa ni amarillo, y sin las fuentes Manrope, Doto ni Poppins
+ *     (todo va con SF Pro Display, cargada en fonts.css).
+ *   - Tarjetas de cristal: en reposo el material "Clear" de iOS (panel casi
+ *     transparente, blur mínimo, canto blanco y filo luminoso) y al pasar el
+ *     ratón el material "Blur" de One UI (esmerilado, sombra propia y el
+ *     levante que ya tenía). La destacada va en verde de marca con texto
+ *     crema y la otra en blanco translúcido; los materiales viven en
+ *     src/styles/pricing.css (.pricing-card, --forest / --glass).
+ *   - La cabecera flotante del original se descarta: la página ya tiene su
+ *     propio Navbar.
+ *   - El conmutador mensual/anual del original también se descarta: cada
+ *     tarjeta muestra un único importe.
+ *   - El botón de play con el modal de vídeo, el acordeón "What is included
+ *     in this plan" y la pastilla del plan del original se han quitado: cada
+ *     tarjeta es plan (el nombre), precio, su letra pequeña (`note`, p. ej.
+ *     "*sin voice over") y CTA, y el tamaño de la tarjeta está ajustado a ese
+ *     contenido (lg:min-h-[300px]).
+ *
+ * TODO el contenido de la sección (titular, notas, planes, precios y botones)
+ * vive en src/data/pricing.json: ahí están el titular, las dos notas que van
+ * debajo (frase de bienvenida y letra pequeña) y los planes. Aquí solo se
+ * recorre ese JSON y se pinta. Añadir, quitar o reordenar tarjetas o cambiar
+ * sus textos es editar ese archivo, sin tocar este componente.
+ *
+ * Lo que Tailwind no cubre bien (degradado de la palabra gigante, hilo de las
+ * tarjetas, balanceo, materiales de cristal de las tarjetas y halo de fondo)
+ * vive en src/styles/pricing.css, importado desde index.css.
+ *
+ * El importe que se pinta es `price.yearly` si existe (los planes con dos
+ * importes guardan también `price.monthly`, sin usar, por si vuelve el
+ * conmutador) y si no `price.fixed`. El botón "Get Started" es un ancla a la
+ * sección de contacto.
+ */
+import pricing from "../data/pricing.json";
+
+interface PlanPrice {
+  /** Precio único (planes que no cambian con el conmutador). */
+  fixed?: string;
+  /** Importe mensual. Se conserva aunque ahora no se muestre. */
+  monthly?: string;
+  /** Importe que se muestra en la tarjeta, si existe. */
+  yearly?: string;
+  /** Sufijo del importe (p. ej. "/m"). */
+  suffix?: string;
+}
+
+interface PricingPlan {
+  id: string;
+  name: string;
+  /** Letra pequeña bajo el precio (p. ej. "*sin voice over"). */
+  note?: string;
+  price: PlanPrice;
+  /** Tarjeta destacada (verde de marca, texto crema). */
+  featured?: boolean;
+  cta: { label: string; href: string };
+}
+
+interface PricingData {
+  heading: string;
+  /** Notas bajo el titular: la frase de bienvenida y la letra pequeña. */
+  notes: { lead: string; fine: string };
+  plans: PricingPlan[];
+}
+
+const { heading, notes, plans } = pricing as PricingData;
+---
+
+<section
+  id="pricing"
+  class="bg-fade-soft relative overflow-hidden px-6 pt-24 pb-28 sm:px-10 sm:pt-28 sm:pb-36"
+>
+  <div class="pricing-halo" aria-hidden="true"></div>
+
+  <div class="relative mx-auto max-w-6xl">
+    <!-- Palabra gigante desvanecida: las tarjetas cuelgan por delante -->
+    <h2
+      class="pricing-word font-display text-center text-[clamp(72px,14vw,170px)] leading-none font-bold tracking-tight select-none"
+    >
+      {heading}
+    </h2>
+
+    <!-- Notas de la sección, entre el titular y las tarjetas -->
+    <div class="mx-auto mt-8 max-w-2xl text-center sm:mt-10">
+      <p
+        class="font-display text-lg leading-snug font-medium text-balance text-ink sm:text-xl"
+      >
+        {notes.lead}
+      </p>
+      <p class="mt-3 text-sm text-ink-soft">{notes.fine}</p>
+    </div>
+
+    <!-- Tarjetas: una columna hasta lg (con más aire entre ellas para que
+         quepan los hilos) y dos columnas desde lg, alineadas arriba. -->
+    <div
+      class="mx-auto mt-7 grid max-w-[26rem] grid-cols-1 items-start gap-[90px] pt-[70px] lg:max-w-[58rem] lg:grid-cols-2 lg:gap-10"
+    >
+      {
+        plans.map((plan) => {
+          const featured = plan.featured ?? false;
+          const toggle = (on: string, off: string) => (featured ? on : off);
+
+          return (
+            <div
+              class={featured
+                ? "pricing-sway pricing-featured relative"
+                : "pricing-sway relative"}
+            >
+              <div class="pricing-string" aria-hidden="true" />
+              <article
+                class={`pricing-card flex flex-col p-7 text-center lg:min-h-[300px] ${toggle(
+                  "pricing-card--forest text-cream",
+                  "pricing-card--glass text-ink"
+                )}`}
+              >
+                <h3
+                  class={`font-display text-2xl font-semibold tracking-tight sm:text-3xl ${toggle(
+                    "text-cream",
+                    "text-ink"
+                  )}`}
+                >
+                  {plan.name}
+                </h3>
+                <p
+                  class={`font-display mt-6 mb-3 text-[clamp(44px,5vw,64px)] leading-none font-semibold tracking-tight tabular-nums ${toggle(
+                    "text-cream",
+                    "text-forest"
+                  )}`}
+                >
+                  {plan.price.yearly
+                    ? `$${plan.price.yearly}`
+                    : plan.price.fixed}
+                  {plan.price.suffix && (
+                    <span
+                      class={`ml-1 text-lg font-medium ${toggle(
+                        "text-cream/85",
+                        "text-ink-soft"
+                      )}`}
+                    >
+                      {plan.price.suffix}
+                    </span>
+                  )}
+                </p>
+
+                {plan.note && (
+                  <p
+                    class={`text-sm ${toggle(
+                      "text-cream/90",
+                      "text-ink-soft"
+                    )}`}
+                  >
+                    {plan.note}
+                  </p>
+                )}
+
+                <a
+                  href={plan.cta.href}
+                  class={`mt-auto inline-flex items-center justify-center rounded-full border px-6 py-3.5 text-sm font-semibold backdrop-blur-sm transition-colors ${toggle(
+                    "border-cream/60 bg-cream/90 text-forest hover:border-cream hover:bg-cream",
+                    "border-forest/30 bg-white/60 text-forest hover:border-forest hover:bg-forest hover:text-cream"
+                  )}`}
+                >
+                  {plan.cta.label}
+                </a>
+              </article>
+            </div>
+          );
+        })
+      }
+    </div>
+  </div>
+</section>

@@ -1,0 +1,135 @@
+/* ============================================================
+   index.css — hoja principal de estilos
+   Une Tailwind + variables + fuentes + los estilos propios de cada
+   bloque (antes vivían en global.css, que se eliminó).
+   ============================================================ */
+
+@import "tailwindcss";
+@import "./variables.css";
+@import "./fonts.css";
+@import "./pricing.css";
+
+/* ---------- Estilos base ---------- */
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+/* ---------- Utilidades de diseño ---------- */
+
+/* Titular metálico EMPOTRADO en el fondo (efecto letra tallada):
+   1) sombra oscura dentro de la parte alta de cada glifo,
+   2) destello claro dentro del borde bajo de cada glifo (la luz entra
+      por abajo del grabado),
+   3) base metálica (clara arriba → oscura abajo). */
+.text-metal {
+  background-image: linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0.3) 0%,
+      rgba(0, 0, 0, 0) 38%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0) 62%,
+      rgba(255, 255, 255, 0.5) 100%
+    ),
+    linear-gradient(
+      180deg,
+      var(--color-metal-light) 0%,
+      var(--color-metal-dark) 100%
+    );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Patrón de puntos sutil (usado en el footer) */
+.dot-grid {
+  background-image: radial-gradient(
+    var(--color-ink-faint) 1px,
+    transparent 1px
+  );
+  background-size: 22px 22px;
+  background-position: -11px -11px;
+}
+
+/* Desvanecido horizontal de los bordes (franja de logos) */
+.fade-edges {
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    black 15%,
+    black 85%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    black 15%,
+    black 85%,
+    transparent 100%
+  );
+}
+
+/* Degradado entre secciones: las bandas de color se funden verticalmente
+   con el fondo de las secciones contiguas (transparente = crema del body) */
+.bg-fade-soft {
+  background-image: linear-gradient(
+    180deg,
+    rgba(241, 244, 238, 0) 0%,
+    rgb(241 244 238) 4rem,
+    rgb(241 244 238) calc(100% - 4rem),
+    rgba(241, 244, 238, 0) 100%
+  );
+}
+
+/* ---------- Efectos de scroll y cursor ---------- */
+
+/* Titulares con zoom ligado al scroll (transform lo aplica el JS) */
+[data-fx-zoom] {
+  will-change: transform;
+}
+
+/* Estela verde del cursor: fija, detrás del contenido (z-index -1) y con
+   blend multiply para mezclarse únicamente con el fondo crema de la página */
+#cursor-glow,
+#cursor-glow-trail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  will-change: transform;
+}
+
+#cursor-glow {
+  width: clamp(300px, 40vw, 560px);
+  background: radial-gradient(
+    closest-side,
+    rgba(47, 91, 65, 0.08),
+    transparent 75%
+  );
+}
+
+#cursor-glow-trail {
+  width: clamp(420px, 62vw, 840px);
+  background: radial-gradient(
+    closest-side,
+    rgba(47, 91, 65, 0.035),
+    transparent 75%
+  );
+}

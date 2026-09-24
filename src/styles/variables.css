@@ -1,0 +1,31 @@
+/* ============================================================
+   variables.css — todas las variables del proyecto (tokens)
+   Se importa desde index.css; los nombres alimentan el @theme
+   de Tailwind v4 (--color-*, --font-*) y generan utilidades.
+   ============================================================ */
+
+@theme {
+  /* Tipografías: stack nativo del sistema (SF Pro en dispositivos Apple) */
+  --font-display: "SF Pro Display", -apple-system, BlinkMacSystemFont,
+    "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-body: "SF Pro Display", -apple-system, BlinkMacSystemFont,
+    "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  /* Colores base */
+  --color-ink: #4b4f49;
+  --color-ink-soft: #7a7f77;
+  --color-ink-faint: #a7aba3;
+
+  /* Metales del titular */
+  --color-metal-light: #d7d9d3;
+  --color-metal-dark: #7c807a;
+
+  /* Verde de marca */
+  --color-forest: #2f5b41;
+  --color-forest-light: #4c7a5c;
+  --color-sage: #e7ece3;
+  --color-sage-soft: #f1f4ee;
+
+  /* Fondo general */
+  --color-cream: #fdfdfb;
+}

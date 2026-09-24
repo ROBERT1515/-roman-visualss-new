@@ -1,0 +1,777 @@
+---
+---
+<!-- Botón que abre el modal del calendario (o el link de Figma si no hay API) -->
+<button
+  type="button"
+  id="calendar"
+  class="cal-open-btn inline-flex items-center gap-2 rounded-full border border-ink-faint/40 px-6 py-2.5 text-sm font-medium text-ink-soft"
+>
+  OPEN CALENDAR
+  <svg
+    class="h-4 w-4"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.8"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <rect x="3" y="5" width="18" height="16" rx="2.5" />
+    <path d="M8 3v4M16 3v4M3 10h18" />
+  </svg>
+</button>
+
+<!-- Modal: disponibilidad real del mes (Google Calendar API) -->
+<div
+  id="cal-modal"
+  class="cal-backdrop"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="cal-title"
+  hidden
+>
+  <div class="cal-panel">
+    <button type="button" id="cal-close" class="cal-close" aria-label="Close calendar">
+      ✕
+    </button>
+
+    <!-- Controles centrados: el botón ✕ queda libre en la esquina derecha -->
+    <div class="flex items-center justify-center gap-3">
+      <button type="button" id="cal-prev" class="cal-nav" aria-label="Previous month">
+        ‹
+      </button>
+      <h3 id="cal-title" class="cal-title"></h3>
+      <button type="button" id="cal-next" class="cal-nav" aria-label="Next month">
+        ›
+      </button>
+    </div>
+
+    <!-- Leyenda: qué significa cada color (por encima del calendario) -->
+    <div class="cal-legend">
+      <p class="cal-legend-title">LEGEND</p>
+      <div class="cal-legend-items">
+        <div class="cal-legend-item">
+          <span class="cal-swatch occupied" aria-hidden="true"></span>
+          <div>
+            <p class="cal-legend-label">Occupied</p>
+            <p class="cal-legend-desc">Day already booked</p>
+          </div>
+        </div>
+
+        <div class="cal-legend-item">
+          <span class="cal-swatch free" aria-hidden="true"></span>
+          <div>
+            <p class="cal-legend-label">Free</p>
+            <p class="cal-legend-desc">Available to book</p>
+          </div>
+        </div>
+
+        <div class="cal-legend-item">
+          <span class="cal-swatch rest" aria-hidden="true"></span>
+          <div>
+            <p class="cal-legend-label">Rest</p>
+            <p class="cal-legend-desc">Day off, not working</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cal-weekdays" aria-hidden="true">
+      <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span
+      ><span>F</span><span>S</span>
+    </div>
+
+    <div id="cal-grid" class="cal-grid"></div>
+
+    <!-- Estado: carga / error de la API (con fallback a Figma en error) -->
+    <div id="cal-status" class="cal-status" hidden aria-live="polite">
+      <p id="cal-status-msg" class="cal-status-msg"></p>
+      <button type="button" id="cal-figma-link" class="cal-figma-btn" hidden>
+        Open Figma preview
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ─────────────────────────────────────────────────────────────
+  // Integración con Google Calendar API (Calendar v3, calendario público)
+  //
+  // Variables de entorno (todas con prefijo PUBLIC_ porque la consulta se
+  // hace desde el navegador). Ver `.env.example` y el README:
+  //   PUBLIC_GOOGLE_CALENDAR_API_KEY  API key (Google Calendar API activada)
+  //   PUBLIC_GOOGLE_CALENDAR_ID       ID del calendario público
+  //   PUBLIC_FIGMA_URL                Link de Figma de respaldo
+  //   PUBLIC_REST_KEYWORDS            (opcional) palabras clave para marcar
+  //                                   días de descanso (por defecto hay varias)
+  //
+  // Comportamiento:
+  //  * Sin API configurada → el botón NO abre el modal: abre el link de
+  //    Figma en una pestaña nueva (previsualización del diseño).
+  //  * Con API configurada  → el modal muestra la disponibilidad REAL:
+  //    días con eventos = "occupied", finde sin eventos = "rest",
+  //    día laborable sin eventos = "free".
+  //  * Un evento cuyo TÍTULO contenga una palabra clave de descanso
+  //    (Rest / OFF / Descanso / Vacaciones / Vacation / Holiday, sin importar
+  //    mayúsculas ni acentos) marca ese día como "rest" aunque sea laborable.
+  // ─────────────────────────────────────────────────────────────
+  const env = import.meta.env as Record<string, string | undefined>;
+
+  const API_KEY = env.PUBLIC_GOOGLE_CALENDAR_API_KEY;
+  const CALENDAR_ID = env.PUBLIC_GOOGLE_CALENDAR_ID;
+  // TODO: reemplaza este placeholder por tu link real o defínelo en .env
+  const FIGMA_URL =
+    env.PUBLIC_FIGMA_URL ||
+    "https://www.figma.com/design/REEMPLAZA-CON-TU-LINK-DE-FIGMA";
+
+  const isCalendarConfigured = Boolean(API_KEY && CALENDAR_ID);
+
+  // Palabras clave para detectar días de descanso en el título del evento.
+  // Se puede sobrescribir con PUBLIC_REST_KEYWORDS (separadas por coma):
+  // p. ej. "Rest,OFF,Descanso,Vacaciones".
+  const DEFAULT_REST_KEYWORDS = [
+    "rest",
+    "off",
+    "descanso",
+    "vacaciones",
+    "vacation",
+    "holiday",
+  ];
+  const stripAccents = (s: string): string =>
+    s
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+  const REST_KEYWORDS = (
+    env.PUBLIC_REST_KEYWORDS ? env.PUBLIC_REST_KEYWORDS.split(",") : DEFAULT_REST_KEYWORDS
+  )
+    .map((kw) => stripAccents(kw).trim())
+    .filter(Boolean);
+
+  // ¿El evento es una marca de descanso? (palabra clave como palabra completa
+  // en el título: "Rest", "Day off", "Vacaciones 2026", "OFF", …)
+  const isRestEvent = (item: any): boolean => {
+    const title = stripAccents(String(item.summary ?? "")).trim();
+    if (!title) return false;
+    return REST_KEYWORDS.some(
+      (kw) =>
+        title === kw ||
+        title.startsWith(kw + " ") ||
+        title.endsWith(" " + kw) ||
+        title.includes(" " + kw + " ")
+    );
+  };
+
+  const openFigmaPreview = () => {
+    window.open(FIGMA_URL, "_blank", "noopener,noreferrer");
+  };
+
+  const modal = document.getElementById("cal-modal");
+  const grid = document.getElementById("cal-grid");
+  const titleEl = document.getElementById("cal-title");
+  const btnOpen = document.getElementById("calendar");
+  const btnClose = document.getElementById("cal-close");
+  const btnPrev = document.getElementById("cal-prev");
+  const btnNext = document.getElementById("cal-next");
+  const statusEl = document.getElementById("cal-status");
+  const statusMsg = document.getElementById("cal-status-msg");
+  const figmaBtn = document.getElementById("cal-figma-link");
+
+  const now = new Date();
+  let year = now.getFullYear();
+  let month = now.getMonth(); // 0-based
+
+  // Cache por mes ("YYYY-M" → días con eventos y días marcados como descanso)
+  const busyByMonth = new Map<
+    string,
+    { busy: Set<number>; rest: Set<number> }
+  >();
+  // Contador para descartar respuestas obsoletas si se navega rápido de mes
+  let loadToken = 0;
+
+  const monthKey = (y: number, m: number): string => `${y}-${m}`;
+
+  const pad = (n: number): string => String(n).padStart(2, "0");
+
+  const localDay = (d: Date): string =>
+    `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+
+  const isToday = (y: number, m: number, d: number): boolean =>
+    y === now.getFullYear() && m === now.getMonth() && d === now.getDate();
+
+  // Devuelve las fechas "YYYY-MM-DD" (día local del navegador) que ocupa un
+  // evento del calendario (all-day y con hora, incluidos los de varios días).
+  function busyDatesOf(event: any): string[] {
+    const dates: string[] = [];
+    const start = event.start;
+    const end = event.end;
+    if (!start) return dates;
+
+    // Evento de día completo: start.date / end.date (end es exclusivo)
+    if (start.date) {
+      const [sy, sm, sd] = start.date.split("-").map(Number);
+      const s = new Date(sy, sm - 1, sd);
+      const [ey, em, ed] = (end?.date ?? start.date).split("-").map(Number);
+      const e = new Date(ey, em - 1, ed);
+      for (let d = new Date(s); d < e; d.setDate(d.getDate() + 1)) {
+        dates.push(localDay(d));
+      }
+      return dates;
+    }
+
+    // Evento con hora: start.dateTime / end.dateTime
+    if (start.dateTime) {
+      const s = new Date(start.dateTime);
+      const e = end?.dateTime ? new Date(end.dateTime) : new Date(s);
+      for (let d = new Date(s); d < e; d.setDate(d.getDate() + 1)) {
+        dates.push(localDay(d));
+      }
+    }
+    return dates;
+  }
+
+  // Carga (una vez por mes, con cache) los eventos del calendario y devuelve
+  // los días ocupados y los días de descanso del mes; `null` si la API falló.
+  async function loadMonth(
+    y: number,
+    m: number
+  ): Promise<{ busy: Set<number>; rest: Set<number> } | null> {
+    const key = monthKey(y, m);
+    if (busyByMonth.has(key)) return busyByMonth.get(key)!;
+
+    const token = ++loadToken;
+    draw(new Set(), new Set()); // limpia las celdas del mes anterior
+    setStatus("Loading availability…", "loading");
+
+    const timeMin = new Date(y, m, 1).toISOString();
+    const timeMax = new Date(y, m + 1, 1).toISOString();
+    const url =
+      "https://www.googleapis.com/calendar/v3/calendars/" +
+      encodeURIComponent(CALENDAR_ID!) +
+      "/events?key=" +
+      encodeURIComponent(API_KEY!) +
+      "&timeMin=" +
+      timeMin +
+      "&timeMax=" +
+      timeMax +
+      "&singleEvents=true&orderBy=startTime&maxResults=2500";
+
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`Google Calendar API responded ${res.status}`);
+      const data = await res.json();
+
+      const busy = new Set<number>();
+      const rest = new Set<number>();
+      const prefix = `${y}-${pad(m + 1)}-`;
+      for (const item of (data.items as any[]) ?? []) {
+        const marksRest = isRestEvent(item);
+        for (const iso of busyDatesOf(item)) {
+          if (iso.startsWith(prefix)) {
+            const day = Number(iso.slice(8, 10));
+            busy.add(day);
+            if (marksRest) rest.add(day);
+          }
+        }
+      }
+
+      if (token !== loadToken) return null; // llegó otra navegación mientras tanto
+      busyByMonth.set(key, { busy, rest });
+      hideStatus();
+      return { busy, rest };
+    } catch (err) {
+      if (token !== loadToken) return null;
+      console.error("[CalendarModal]", err);
+      setStatus(
+        "Couldn't load availability. Check the Google Calendar API configuration.",
+        "error"
+      );
+      return null;
+    }
+  }
+
+  function draw(busy: Set<number>, rest: Set<number>) {
+    const firstWeekday = new Date(year, month, 1).getDay(); // 0..6, domingo
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    grid.textContent = "";
+    for (let i = 0; i < 42; i++) {
+      const day = i - firstWeekday + 1;
+      const cell = document.createElement("div");
+
+      if (day < 1 || day > daysInMonth) {
+        cell.className = "cal-day blank";
+        grid.appendChild(cell);
+        continue;
+      }
+
+      const dow = new Date(year, month, day).getDay(); // 0 = Sunday
+      const isWeekend = dow === 0 || dow === 6;
+      // Prioridad: descanso marcado (evento Rest/OFF/…) > ocupado (evento) >
+      // descanso (finde) > libre
+      const kind = rest.has(day)
+        ? "rest"
+        : busy.has(day)
+          ? "occupied"
+          : isWeekend
+            ? "rest"
+            : "free";
+      cell.className = `cal-day ${kind}`;
+      if (isToday(year, month, day)) cell.classList.add("today");
+      cell.textContent = String(day);
+      grid.appendChild(cell);
+    }
+  }
+
+  function setStatus(msg: string, kind: "loading" | "error") {
+    if (!statusEl || !statusMsg || !figmaBtn) return;
+    statusMsg.textContent = msg;
+    statusEl.classList.toggle("error", kind === "error");
+    figmaBtn.hidden = kind !== "error";
+    statusEl.hidden = false;
+  }
+
+  function hideStatus() {
+    if (statusEl) statusEl.hidden = true;
+  }
+
+  async function refresh() {
+    titleEl.textContent = new Date(year, month, 1).toLocaleString("en-US", {
+      month: "long",
+      year: "numeric",
+    });
+
+    // Sin API no debería llegarse aquí (openModal deriva a Figma), pero por
+    // seguridad dibujamos el mes sin datos en vez de abrir el modal.
+    const data = isCalendarConfigured ? await loadMonth(year, month) : null;
+    draw(data?.busy ?? new Set(), data?.rest ?? new Set());
+  }
+
+  function openModal() {
+    // Sin variables de Google Calendar configuradas → NO se muestra el modal:
+    // se abre el link de Figma (previsualización del diseño) en pestaña nueva.
+    if (!isCalendarConfigured) {
+      openFigmaPreview();
+      return;
+    }
+
+    modal.hidden = false;
+    document.body.style.overflow = "hidden";
+    btnClose.focus();
+    refresh();
+  }
+
+  const closeModal = () => {
+    modal.hidden = true;
+    document.body.style.overflow = "";
+  };
+
+  btnOpen.addEventListener("click", openModal);
+  btnClose.addEventListener("click", closeModal);
+  figmaBtn.addEventListener("click", openFigmaPreview);
+  btnPrev.addEventListener("click", () => {
+    month = month === 0 ? 11 : month - 1;
+    if (month === 11) year--;
+    refresh();
+  });
+  btnNext.addEventListener("click", () => {
+    month = month === 11 ? 0 : month + 1;
+    if (month === 0) year++;
+    refresh();
+  });
+
+  modal.addEventListener("click", (event) => {
+    if (event.target === modal) closeModal();
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !modal.hidden) closeModal();
+  });
+
+  // El enlace "Calendar" del menú (#calendar) abre el modal; si no hay API,
+  // se comporta igual que el botón (deriva a Figma).
+  const openIfHash = () => {
+    if (window.location.hash === "#calendar") openModal();
+  };
+  window.addEventListener("hashchange", openIfHash);
+  openIfHash();
+</script>
+
+<style is:global>
+  .cal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background: rgba(60, 63, 58, 0.4);
+    backdrop-filter: blur(4px);
+  }
+
+  /* El atributo hidden del modal debe ganar al display:flex */
+  .cal-backdrop[hidden] {
+    display: none;
+  }
+
+  .cal-backdrop:not([hidden]) {
+    animation: cal-fade 0.25s ease;
+  }
+
+  .cal-backdrop:not([hidden]) .cal-panel {
+    animation: cal-pop 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  @keyframes cal-fade {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes cal-pop {
+    from {
+      opacity: 0;
+      transform: translateY(10px) scale(0.97);
+    }
+  }
+
+  .cal-panel {
+    position: relative;
+    width: min(100%, 26rem);
+    max-height: 90vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border-radius: 2rem;
+    background: var(--color-cream);
+    padding: 2rem 2rem 1.75rem;
+    box-shadow: 0 30px 60px rgba(60, 63, 58, 0.25);
+    border: 1px solid rgba(167, 171, 163, 0.25);
+
+    /* Scroll disimulado: barra fina y muy sutil (Firefox) */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(167, 171, 163, 0.4) transparent;
+  }
+
+  /* Scroll disimulado: barra fina y muy sutil (WebKit/Chromium) */
+  .cal-panel::-webkit-scrollbar {
+    width: 4px;
+  }
+  .cal-panel::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .cal-panel::-webkit-scrollbar-thumb {
+    background: rgba(167, 171, 163, 0.4);
+    border-radius: 9999px;
+  }
+  .cal-panel::-webkit-scrollbar-thumb:hover {
+    background: rgba(122, 127, 119, 0.65);
+  }
+
+  .cal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: grid;
+    place-items: center;
+    height: 2.25rem;
+    width: 2.25rem;
+    border-radius: 9999px;
+    color: var(--color-ink-soft);
+    transition:
+      background 0.2s ease,
+      color 0.2s ease;
+  }
+  .cal-close:hover {
+    background: var(--color-sage);
+    color: var(--color-ink);
+  }
+
+  .cal-title {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+
+  .cal-nav {
+    display: grid;
+    place-items: center;
+    height: 2.25rem;
+    width: 2.25rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(167, 171, 163, 0.4);
+    font-size: 1.25rem;
+    line-height: 1;
+    color: var(--color-ink-soft);
+    transition:
+      border-color 0.2s ease,
+      color 0.2s ease;
+  }
+  .cal-nav:hover {
+    border-color: var(--color-ink-faint);
+    color: var(--color-ink);
+  }
+
+  .cal-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    margin-top: 1.5rem;
+    text-align: center;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    color: var(--color-ink-faint);
+  }
+
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.375rem;
+    margin-top: 0.625rem;
+  }
+
+  .cal-day {
+    display: grid;
+    place-items: center;
+    height: 2.35rem;
+    border-radius: 9999px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+  }
+
+  .cal-day.blank {
+    visibility: hidden;
+  }
+
+  /* Ocupado → rojizo */
+  .cal-day.occupied {
+    background: #eea8a4;
+    color: #8a3230;
+  }
+
+  /* Libre → verde clarito */
+  .cal-day.free {
+    background: #d3e9d8;
+    color: #2f5b41;
+  }
+
+  /* Descanso → blanco */
+  .cal-day.rest {
+    background: #ffffff;
+    color: #7a7f77;
+    box-shadow: inset 0 0 0 1px rgba(167, 171, 163, 0.4);
+  }
+
+  .cal-day.today {
+    box-shadow:
+      inset 0 0 0 1.5px var(--color-forest),
+      0 0 0 3px rgba(47, 91, 65, 0.15);
+  }
+
+  .cal-legend {
+    margin-top: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(167, 171, 163, 0.25);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.625rem;
+  }
+
+  .cal-legend-title {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    color: var(--color-ink-faint);
+  }
+
+  /* Indicadores uno al lado del otro (en fila, con wrap si no caben) */
+  .cal-legend-items {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    column-gap: 1.75rem;
+    row-gap: 0.5rem;
+  }
+
+  .cal-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+  }
+
+  .cal-swatch {
+    flex-shrink: 0;
+    height: 0.875rem;
+    width: 0.875rem;
+    border-radius: 9999px;
+  }
+  .cal-swatch.occupied {
+    background: #eea8a4;
+    box-shadow: inset 0 0 0 1px rgba(138, 50, 48, 0.25);
+  }
+  .cal-swatch.free {
+    background: #d3e9d8;
+  }
+  .cal-swatch.rest {
+    background: #ffffff;
+    box-shadow: inset 0 0 0 1px rgba(167, 171, 163, 0.5);
+  }
+
+  .cal-legend-label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+
+  .cal-legend-desc {
+    font-size: 0.6875rem;
+    color: var(--color-ink-faint);
+  }
+
+  /* Estado (carga / error) bajo el grid */
+  .cal-status {
+    margin-top: 1rem;
+    border-radius: 1rem;
+    background: var(--color-sage);
+    border: 1px solid rgba(167, 171, 163, 0.35);
+    padding: 0.75rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.625rem;
+    text-align: center;
+  }
+  .cal-status[hidden] {
+    display: none;
+  }
+
+  .cal-status-msg {
+    font-size: 0.8125rem;
+    color: var(--color-ink-soft);
+  }
+
+  .cal-status.error {
+    background: rgba(238, 168, 164, 0.18);
+    border-color: rgba(138, 50, 48, 0.2);
+  }
+  .cal-status.error .cal-status-msg {
+    color: #8a3230;
+  }
+
+  .cal-figma-btn {
+    border-radius: 9999px;
+    border: 1px solid rgba(138, 50, 48, 0.35);
+    padding: 0.4rem 1.1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #8a3230;
+    transition:
+      background 0.2s ease,
+      color 0.2s ease;
+  }
+  .cal-figma-btn:hover {
+    background: #8a3230;
+    color: #ffffff;
+  }
+  .cal-figma-btn[hidden] {
+    display: none;
+  }
+
+  /* En pantallas bajas el contenido se compacta para evitar el scroll */
+  @media (max-height: 700px) {
+    .cal-panel {
+      padding: 1.25rem 1.5rem 1rem;
+    }
+    .cal-legend {
+      margin-top: 0.875rem;
+      padding-bottom: 0.875rem;
+    }
+    .cal-weekdays {
+      margin-top: 0.875rem;
+    }
+    .cal-grid {
+      gap: 0.25rem;
+      margin-top: 0.375rem;
+    }
+    .cal-day {
+      height: 1.95rem;
+    }
+    .cal-status {
+      margin-top: 0.625rem;
+    }
+  }
+
+  /* ── Botón "OPEN CALENDAR" ─────────────────────────────────────────
+     · cursor pointer (Tailwind pone cursor: default en los botones)
+     · relleno que barre desde la izquierda al pasar el ratón
+     · ligera elevación + sombra verde y un pequeño gesto del icono     */
+  .cal-open-btn {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    cursor: pointer;
+    transition:
+      transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.25s ease,
+      border-color 0.25s ease,
+      color 0.25s ease;
+  }
+
+  /* Capa de relleno (detrás del texto, delante del borde) */
+  .cal-open-btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: linear-gradient(120deg, var(--color-sage), #dbe6dc);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .cal-open-btn:hover {
+    transform: translateY(-2px);
+    border-color: var(--color-forest-light);
+    color: var(--color-forest);
+    box-shadow: 0 12px 26px rgba(47, 91, 65, 0.16);
+  }
+
+  .cal-open-btn:hover::before {
+    transform: scaleX(1);
+  }
+
+  .cal-open-btn:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow: 0 4px 10px rgba(47, 91, 65, 0.14);
+  }
+
+  /* El icono del calendario acompaña el gesto */
+  .cal-open-btn svg {
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .cal-open-btn:hover svg {
+    transform: translateY(-1px) rotate(-8deg) scale(1.08);
+  }
+
+  /* Foco visible al navegar con teclado */
+  .cal-open-btn:focus-visible {
+    outline: 2px solid var(--color-forest);
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cal-open-btn,
+    .cal-open-btn::before,
+    .cal-open-btn svg {
+      transition: none;
+    }
+    .cal-open-btn:hover {
+      transform: none;
+    }
+  }
+</style>

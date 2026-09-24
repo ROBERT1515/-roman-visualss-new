@@ -1,0 +1,124 @@
+---
+interface Logo {
+  name: string;
+  /** Ruta de la imagen (p. ej. "/logos/nike.svg"). Si se omite, se muestra el texto. */
+  image?: string;
+  /** Texto con más protagonismo (color de tinta plena en vez de apagado). */
+  emphasis?: boolean;
+}
+
+const logos: Logo[] = [
+  { name: "BeamRail", image: "/logo%20design.png" },
+  { name: "Hevn", image: "/hevn.svg" },
+];
+
+// Grupos idénticos que recorre la animación: el salto del bucle es invisible.
+const GROUPS = 3;
+---
+
+<section class="bg-fade-soft py-16">
+  <div class="mx-auto max-w-6xl px-6 sm:px-10">
+    <p class="text-xs font-medium tracking-wide text-ink-faint">
+      COLLABORATED WITH
+    </p>
+    <p class="sr-only">
+      {logos.map((logo) => logo.name).join(", ")}
+    </p>
+
+    <!-- Marquee horizontal en bucle: al llegar al extremo izquierdo,
+         cada logo reaparece por el extremo derecho -->
+    <div class="logo-marquee fade-edges mt-8" aria-hidden="true">
+      <div class="logo-track">
+        {Array.from({ length: GROUPS }, (_, groupIndex) => (
+          <div class="logo-group">
+            {logos.map((logo) =>
+              logo.image ? (
+                <img
+                  class="logo logo-image"
+                  src={logo.image}
+                  alt=""
+                  loading="lazy"
+                />
+              ) : (
+                <span
+                  class:list={[
+                    "logo logo-text font-display text-lg font-semibold sm:text-2xl",
+                    logo.emphasis ? "text-ink" : "text-ink-faint/70",
+                  ]}
+                >
+                  {logo.name}
+                </span>
+              ),
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .logo-marquee {
+    overflow: hidden;
+  }
+
+  .logo-track {
+    display: flex;
+    width: max-content;
+    will-change: transform;
+    animation: logo-scroll 22s linear infinite;
+  }
+
+  .logo-group {
+    display: flex;
+    align-items: center;
+  }
+
+  .logo {
+    flex-shrink: 0;
+    /* Separación uniforme entre logos y también entre grupos (lo que hace
+       que el salto al reiniciar el bucle sea invisible) */
+    margin-right: 4.5rem;
+    cursor: default;
+    transition:
+      color 0.25s ease,
+      transform 0.25s ease;
+  }
+
+  .logo-image {
+    height: 2.5rem;
+    max-width: 12rem;
+    width: auto;
+    object-fit: contain;
+  }
+
+  /* Efecto hover sobre el logo seleccionado */
+  .logo-text:hover {
+    color: var(--color-ink);
+    transform: scale(1.12);
+  }
+
+  .logo-image:hover {
+    transform: scale(1.12);
+  }
+
+  /* Desplaza exactamente un grupo (1/GROUPS del ancho total) */
+  @keyframes logo-scroll {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(calc(-100% / 3));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .logo-track {
+      animation: none;
+    }
+    /* Sin animación solo se muestra el primer grupo */
+    .logo-group:nth-child(n + 2) {
+      display: none;
+    }
+  }
+</style>
